@@ -1,0 +1,123 @@
+<!-- Build EVOIND -->
+
+<project basedir="." default="build_jar_all_EVOIND" name="BUILD_EVOIND">
+	<description>
+	    Build EVOIND2. 
+	</description>
+
+	<!-- set global properties for this build -->
+	<property name="srcEVOIND" location="src" />
+	<property name="buildEVOIND" location="build" />
+	<property name="libEVOIND" location="lib" />
+	<property name="release_dir" value="release" />
+	<property name="distEVOIND" location="${buildEVOIND}/dist" />
+	<property name="beast2path" location="../beast2-2.1.3" />
+	<property name="libBeast2" location="${beast2path}/lib" />
+	<property name="srcBeast2" location="${beast2path}/src" />
+	<property name="beast2classpath" location="${beast2path}/build" />
+	<property name="Add_on_dir" value="${release_dir}/add-on" />
+
+  <import file="${beast2path}/build.xml" />
+
+	<property name="main_class_BEAST" value="beast.app.BeastMCMC" />
+	<property name="report" value="${buildEVOIND}/junitreport"/>
+
+	<path id="classpath">
+        <pathelement path="${buildEVOIND}"/>
+		<fileset dir="${libBeast2}" includes="junit-4.8.2.jar"/>
+        <pathelement path="${beast2classpath}"/>
+	</path>
+
+	<!-- start -->
+	<target name="initEVOIND">
+		<echo message="${ant.project.name}: ${ant.file}" />
+	</target>
+
+	<target name="cleanEVOIND">
+    		<delete dir="${buildEVOIND}" />
+	</target>	
+
+	<!-- clean previous build, and then compile Java source code, and Juint test -->
+	<target name="build_all_EVOIND" depends="cleanEVOIND,compile-allEVOIND,junitEVOIND"
+        description="Clean and Build all run-time stuff">
+	</target>
+
+	<!-- clean previous build, compile Java source code, and Junit test, and make the beast.jar and beauti.jar -->
+	<target name="build_jar_all_EVOIND" depends="cleanEVOIND,compile-allEVOIND,junitEVOIND,dist_all_EVOIND"
+        description="Clean and Build all run-time stuff">
+	</target>
+	
+	<!-- compile Java source code -->
+	<target name="compile-allEVOIND" depends="initEVOIND,compile-all">
+
+
+	    <!-- Capture the path as a delimited property using the refid attribute -->
+	    <property name="myclasspath" refid="classpath"/>
+	    <!-- Emit the property to the ant console -->
+	    <echo message="Classpath = ${myclasspath}"/>
+
+		<mkdir dir="${buildEVOIND}" />
+
+		<!-- Compile the java code from ${srcEVOIND} into ${buildEVOIND} /bin -->
+		<javac srcdir="${srcEVOIND}" destdir="${buildEVOIND}" classpathref="classpath" 
+		       fork="true"
+		       memoryinitialsize="256m"
+		       memorymaximumsize="256m">
+			<!-- <include name="evoprotein/**/**" /> -->
+			<include name="beast/**/**" />
+			<!-- compile JUnit test classes -->
+			<include name="test/**/**" />
+		</javac>
+		<echo message="Successfully compiled." />
+	</target>
+
+	<!-- make the beast.jar and beauti.jar -->
+	
+	<target name="dist_all_EVOIND" depends="compile-allEVOIND" description="create EVOIND jar">
+		
+		<mkdir dir="${distEVOIND}" />
+		
+		<jar jarfile="${distEVOIND}/EVOIND.src.jar">
+			
+			<fileset dir="${srcEVOIND}">
+				<include name="beast/**/*.java" />
+			</fileset>
+			
+        </jar>
+		
+		<jar jarfile="${distEVOIND}/EVOIND.addon.jar">	
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+			</manifest>	
+			<fileset dir="${buildEVOIND}">
+				<include name="beast/**/*.class" />
+				<!-- <include name="evoprotein/**/*.class" /> -->
+				<include name="**/*.properties" />
+			</fileset>
+		</jar>
+		
+	</target>
+	
+	<!-- JUnit test -->
+	<target name="junitEVOIND">
+		<mkdir dir="${report}" />
+		<junit printsummary="yes">
+			<classpath>
+				<path refid="classpath" />
+				<path location="${buildEVOIND}" />
+			</classpath>
+
+			<formatter type="xml" />
+
+			<batchtest fork="yes" todir="${report}">
+				<fileset dir="${srcEVOIND}">
+                    <include name="test/**/*Test.java"/>                                         
+				</fileset>
+			</batchtest>
+		</junit>
+		<echo message="JUnit test finished." />
+	</target>
+
+	
+	
+</project>

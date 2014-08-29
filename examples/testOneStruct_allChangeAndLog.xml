@@ -1,0 +1,169 @@
+<beast version='2.0'
+       namespace='beast.evolution.alignment:beast.core:beast.evolution.tree.coalescent:beast.core.util:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.evolution.likelihood'>
+
+    <data id="alignment" dataType="codon">
+        <sequence taxon="human">
+		AGAAATATG		
+	    </sequence>
+        <sequence taxon="chimp">
+		AGAAATATG		
+		</sequence>
+        <sequence taxon="bonobo">
+		AGAAATATG		
+		</sequence>
+        <sequence taxon="gorilla">
+		AGAAATATG		
+		</sequence>
+        <sequence taxon="orangutan">
+		AGAAATATG		
+		</sequence>
+		<sequence taxon="siamang">
+		AGAAATACG		
+		</sequence>
+    </data>       
+    
+    <!--
+    <tree id='tree'/>
+    -->
+    
+    
+    <tree spec='beast.util.TreeParser' id='tree' taxa='@alignment'
+	        newick='((((1:0.024003,(2:0.010772,3:0.010772):0.013231):0.012035,4:0.036038):0.033087000000000005,5:0.069125):0.030456999999999998,6:0.099582);'/>
+    
+    
+    <input id='nucleoFreqs' spec='Frequencies' estimate='false'>
+            <frequencies idref='oneStruct.frequencies'/>
+    </input>
+    
+    <run spec="MCMC" id="mcmc" chainLength="30"> <!--autoOptimize="true"-->
+	 	<state>
+            <stateNode spec='parameter.RealParameter' id="oneStruct.kappa" value="2.0" lower="0.0"/>
+            <stateNode spec='parameter.RealParameter' id="oneStruct.omega" value="1.0" lower="0.0"/>
+            <stateNode spec='parameter.RealParameter' id="oneStruct.frequencies" value="0.2 0.3 0.1 0.4" dimension="4" lower='0.0'/>
+	        <stateNode idref='tree'/>       
+       	</state>
+       	
+       	<!--
+       	<init spec='beast.util.ClusterTree' id='UPGMATree.t' initial="@tree" clusterType='upgma' taxa='@alignment'/>
+       	-->
+       	
+      	<distribution spec='CompoundDistribution' id='posterior'>
+			<!-- Start of Prior -->
+			<distribution id="prior" spec="util.CompoundDistribution">
+				<!--
+			  	<distribution id="oneStruct.kappa.prior" spec="beast.math.distributions.Prior" x="@oneStruct.kappa">
+             		<distr id="LogNormalDistributionModel" M="1.0" S="1.25" meanInRealSpace="false"
+                                  spec="beast.math.distributions.LogNormalDistributionModel"/>
+                </distribution>
+                -->
+             	<distribution id="oneStruct.kappa.prior" spec="beast.math.distributions.Prior" x="@oneStruct.kappa">
+                	<distr id="OneOnX0" offset="0.0" spec="beast.math.distributions.OneOnX"/>
+            	</distribution>
+                <distribution id="oneStruct.frequencies.prior" spec="beast.math.distributions.Prior" x="@oneStruct.frequencies">
+                    <distr id="Uniform" lower="0.0" upper="1.0" spec="beast.math.distributions.Uniform"/>
+                </distribution>
+			</distribution>
+			<!-- End of Prior -->
+			
+			<distribution id="likelihood" spec="util.CompoundDistribution">
+			
+            	<distribution spec='TreeLikelihood' id="treeLikelihood.site1" tree='@tree'>
+                	<data data="@alignment" filter="1" id="data.site1" spec="FilteredAlignment"/>
+                	<siteModel id="siteModel.site1" spec='SiteModel'>
+    					<substModel spec='OneStruct' id='oneStruct.site1'>
+        					<kappa idref='oneStruct.kappa'/>
+        					<omega idref='oneStruct.omega'/>
+        					<!--
+        					<nucleoFrequencies id='freqs' spec='Frequencies' frequencies='@oneStruct.frequencies'/>
+        					-->
+        					<nucleoFrequencies idref='nucleoFreqs'/>
+							<codonProb spec='parameter.RealParameter' id="codonProb.site1" value="0.031350262 0.016678685 0.024086503 0.013927975 0.025667266 0.019513173 0.001036515 0.019661785 0.004234123 0.021709737 0.023116887 0.008893605 0.023613895 0.016321916 0.021248437 0.034586834 0.013469791 0.013974397 0.019040362 0.023127154 0.012276834 0.016818336 0.013005605 0.016724293 0.031102112 0.025201710 0.002783288 0.028634640 0.011845951 0.035306332 0.007706424 0.016484928 0.001266775 0.015199627 0.024995155 0.027195620 0.022472747 0.008187028 0.029989578 0.003142386 0.027191536 0.010992749 0.010295569 0.005584570 0.029299030 0.006562422 0.004537246 0.009528992 0.002336504 0.002458360 0.004808568 0.014593801 0.006875164 0.009996637 0.019877895 0.012218437 0.026721705 0.015533992 0.020767555 0.021984981 0.012235612" />
+    					</substModel>
+                	</siteModel>
+            	</distribution>
+            	
+            	<distribution spec='TreeLikelihood' id="treeLikelihood.site2" tree='@tree'>
+                	<data data="@alignment" filter="2" id="data.site2" spec="FilteredAlignment"/>
+                	<siteModel id="siteModel.site2" spec='SiteModel'>
+    					<substModel spec='OneStruct' id='oneStruct.site2'>
+        					<kappa idref='oneStruct.kappa'/>
+        					<omega idref='oneStruct.omega'/>
+        					<nucleoFrequencies idref='nucleoFreqs'/>
+							<codonProb spec='parameter.RealParameter' id="codonProb.site2" value="0.016678685 0.001266775 0.010992749 0.001036515 0.007706424 0.025667266 0.013974397 0.006875164 0.009528992 0.012218437 0.013005605 0.002458360 0.008187028 0.024086503 0.009996637 0.019877895 0.011845951 0.020767555 0.021709737 0.006562422 0.031350262 0.015199627 0.022472747 0.016724293 0.034586834 0.015533992 0.019513173 0.013469791 0.002783288 0.025201710 0.004234123 0.027191536 0.035306332 0.004808568 0.014593801 0.026721705 0.027195620 0.016484928 0.024995155 0.005584570 0.031102112 0.028634640 0.023127154 0.016818336 0.021984981 0.021248437 0.008893605 0.012235612 0.016321916 0.023613895 0.019040362 0.003142386 0.023116887 0.019661785 0.010295569 0.013927975 0.029989578 0.002336504 0.012276834 0.004537246 0.029299030" />
+    					</substModel>
+                	</siteModel>
+            	</distribution>
+
+            	<distribution spec='TreeLikelihood' id="treeLikelihood.site3" tree='@tree'>
+                	<data data="@alignment" filter="3" id="data.site3" spec="FilteredAlignment"/>
+                	<siteModel id="siteModel.site3" spec='SiteModel'>
+    					<substModel spec='OneStruct' id='oneStruct.site3'>
+        					<kappa idref='oneStruct.kappa'/>
+        					<omega idref='oneStruct.omega'/>
+        					<nucleoFrequencies idref='nucleoFreqs'/>
+							<codonProb spec='parameter.RealParameter' id="codonProb.site3" value="0.024995155 0.016484928 0.009528992 0.026721705 0.014593801 0.028634640 0.023127154 0.001036515 0.019513173 0.010992749 0.011845951 0.013469791 0.008893605 0.029299030 0.031102112 0.016678685 0.008187028 0.002336504 0.013927975 0.004808568 0.005584570 0.021709737 0.003142386 0.023613895 0.010295569 0.013974397 0.021248437 0.034586834 0.029989578 0.020767555 0.012235612 0.019877895 0.002458360 0.015533992 0.004537246 0.035306332 0.016321916 0.019040362 0.012276834 0.016818336 0.009996637 0.025201710 0.025667266 0.031350262 0.001266775 0.002783288 0.006562422 0.022472747 0.023116887 0.019661785 0.013005605 0.006875164 0.027195620 0.012218437 0.015199627 0.027191536 0.004234123 0.007706424 0.024086503 0.016724293 0.021984981" />
+    					</substModel>
+                	</siteModel>
+            	</distribution>
+            	
+          	</distribution>
+          	
+       	</distribution>
+       	
+       	
+       	<operator id='kappaScaler' spec='ScaleOperator' scaleFactor="0.5" weight="1" parameter="@oneStruct.kappa"/>
+       	<operator id='omegaScaler' spec='ScaleOperator' scaleFactor="0.5" weight="1" parameter="@oneStruct.omega"/>
+
+        <operator id='frequenciesDelta' spec='DeltaExchangeOperator' delta="0.01" weight="1"
+                	parameter="@oneStruct.frequencies"/>	          	
+       	
+      	<operator id="treeScaler" scaleFactor="0.5" spec="ScaleOperator" tree="@tree" weight="1"/>
+        <operator id="treeRootScaler" rootOnly="true" scaleFactor="0.5" spec="ScaleOperator"
+                  tree="@tree" weight="1"/>
+       	<operator id="UniformOperator" spec="Uniform" tree="@tree" weight="10.0"/>
+       	<operator id="SubtreeSlide" spec="SubtreeSlide" tree="@tree" weight="5.0"/>
+       	<operator id="narrow.t" spec="Exchange" tree="@tree" weight="5.0"/>
+		<!-- known bug: wide operator does not work with trees with 4 or less tips -->
+		<!--
+        <operator id="wide.t" isNarrow="false" spec="Exchange" tree="@tree" weight="1"/>
+       	-->
+       	<operator id="WilsonBalding.t" spec="WilsonBalding" tree="@tree" weight="1"/>
+       	
+       	<!-- log into file -->
+       	<logger logEvery="10" fileName="testOneStruct_allChangeAndLog.log">
+       		<!--
+            <model idref='posterior'/>
+            -->
+            <log idref="posterior"/>
+            <log idref="likelihood"/>
+            <!-- 
+            <log idref="prior"/> 
+            -->
+            <log idref="oneStruct.kappa"/>
+            <log idref="oneStruct.omega"/>
+            <log idref="oneStruct.frequencies"/>
+            <!--
+            <parameter idref="oneStruct.frequencies" name="log"/>
+            -->
+            
+            <log spec='beast.evolution.tree.TreeHeightLogger' tree='@tree'/>
+        </logger>
+        
+        <logger logEvery="10" fileName="testOneStruct_allChangeAndLog.trees">
+            <log idref="tree"/>
+        </logger>
+        
+       	<logger id="screenlog" logEvery="10">
+       		<!--
+            <model idref='posterior'/>
+            -->
+            <log idref="posterior"/>
+            <log arg="@posterior" id="ESS.0" spec="util.ESS"/>
+            <log idref="likelihood"/>
+            <!--
+            <log idref="prior"/>
+            -->
+        </logger>
+    </run>
+    
+</beast>

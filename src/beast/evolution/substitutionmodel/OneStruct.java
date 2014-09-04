@@ -1,11 +1,14 @@
 package beast.evolution.substitutionmodel;
 
+import java.util.Arrays;
+
 import beast.core.Input;
 import beast.core.Input.Validate;
 import beast.core.parameter.RealParameter;
 import beast.evolution.datatype.Codon;
 import beast.evolution.datatype.DataType;
 import beast.evolution.datatype.UserDataType;
+import beast.evolution.tree.Node;
 
 public class OneStruct extends GeneralSubstitutionModel {
     public Input<RealParameter> kappaInput = new Input<RealParameter>("kappa", "kappa parameter in YN98 model", Validate.REQUIRED);
@@ -21,6 +24,59 @@ public class OneStruct extends GeneralSubstitutionModel {
     Frequencies nucleoFrequencies;
     double[][] symmMatrix;
     double[] diagMatrix;
+    
+    @Override
+    public void getTransitionProbabilities(Node node, double fStartTime, double fEndTime, double fRate, double[] matrix) {
+        double distance = (fStartTime - fEndTime) * fRate;
+
+        int i, j, k;
+        double temp;
+
+        // this must be synchronized to avoid being called simultaneously by
+        // two different likelihood threads - AJD
+        synchronized (this) {
+            if (updateMatrix) {
+                setupRelativeRates();
+                setupRateMatrix();
+                eigenDecomposition = eigenSystem.decomposeMatrix(rateMatrix);
+                updateMatrix = false;
+            }
+        }
+        System.out.println(node.getNr() + " " + Arrays.deepToString(rateMatrix));
+        
+        // is the following really necessary?
+        // implemented a pool of iexp matrices to support multiple threads
+        // without creating a new matrix each call. - AJD
+        // a quick timing experiment shows no difference - RRB
+        double[] iexp = new double[nrOfStates * nrOfStates];
+        // Eigen vectors
+        double[] Evec = eigenDecomposition.getEigenVectors();
+        // inverse Eigen vectors
+        double[] Ievc = eigenDecomposition.getInverseEigenVectors();
+        // Eigen values
+        double[] Eval = eigenDecomposition.getEigenValues();
+        for (i = 0; i < nrOfStates; i++) {
+            temp = Math.exp(distance * Eval[i]);
+            for (j = 0; j < nrOfStates; j++) {
+                iexp[i * nrOfStates + j] = Ievc[i * nrOfStates + j] * temp;
+            }
+        }
+
+        int u = 0;
+        for (i = 0; i < nrOfStates; i++) {
+            for (j = 0; j < nrOfStates; j++) {
+                temp = 0.0;
+                for (k = 0; k < nrOfStates; k++) {
+                    temp += Evec[i * nrOfStates + k] * iexp[k * nrOfStates + j];
+                }
+
+                matrix[u] = Math.abs(temp);
+                u++;
+            }
+        }
+        
+        System.out.println(node.getNr() + " probabilities:" + Arrays.toString(matrix));
+    } // getTransitionProbabilities
     
     //change frequenciesInput and ratesInput from "REQUIRED" to "OPTIONAL"
     public OneStruct() {

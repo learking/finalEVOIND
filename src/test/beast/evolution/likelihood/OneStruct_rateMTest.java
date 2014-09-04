@@ -1,33 +1,31 @@
 package test.beast.evolution.likelihood;
 
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+
 import org.junit.Test;
 
 import test.beast.BEASTTestCase;
 import beast.core.parameter.RealParameter;
 import beast.evolution.alignment.Alignment;
+import beast.evolution.alignment.FilteredAlignment;
 import beast.evolution.alignment.Sequence;
 import beast.evolution.datatype.UserDataType;
 import beast.evolution.likelihood.TreeLikelihood;
+import beast.evolution.likelihood.TreeLikelihoodSimplified;
 import beast.evolution.sitemodel.SiteModel;
 import beast.evolution.substitutionmodel.Frequencies;
-import beast.evolution.substitutionmodel.YN98;
+import beast.evolution.substitutionmodel.OneStruct;
 import beast.evolution.tree.Tree;
 import beast.util.TreeParser;
 import junit.framework.TestCase;
 
-/**
- * This test aims to check whether YN98 is compatible with the rest of BEAST2 program (before spending time to 
- * compile my plugin, construct .xml input file and test using real-world sequence alignment)
- * *
- */
-
-public class YN98_1_Test extends TestCase {
-	
+public class OneStruct_rateMTest extends TestCase {
     protected TreeLikelihood newTreeLikelihood() {
     	System.setProperty("java.only","true");
         return new TreeLikelihood();
     }
-	
+    
     static public Alignment getCodonAlignment() throws Exception {
         Sequence human = new Sequence("human", "ATGACGGAATATAAGCTGGTGGTGGTGGGCGCCGGCGGTGTGGGCAAGAGTGCGCTGACCATCCAGCTGATCCAGAACCATTTTGTGGACGAATACGACCCCACTATAGAGGATTCCTACCGGAAGCAGGTGGTCATTGATGGGGAGACGTGCCTGTTGGACATCCTGGATACCGCCGGCCAGGAGGAGTACAGCGCCATGCGGGACCAGTACATGCGCACCGGGGAGGGCTTCCTGTGTGTGTTTGCCATCAACAACACCAAGTCTTTTGAGGACATCCACCAGTACAGGGAGCAGATCAAACGGGTGAAGGACTCGGATGACGTGCCCATGGTGCTGGTGGGGAACAAGTGTGACCTGGCTGCACGCACTGTGGAATCTCGGCAGGCTCAGGACCTCGCCCGAAGCTACGGCATCCCCTACATCGAGACCTCGGCCAAGACCCGGCAGGGAGTGGAGGATGCCTTCTACACGTTGGTGCGTGAGATCCGGCAGCAC");
         Sequence fly = new Sequence("fly", "ATGACGGAATACAAATTGGTTGTTGTTGGTGCGGGAGGCGTTGGCAAATCGGCGTTGACCATCCAACTAATTCAGAATCATTTTGTTGACGAATACGATCCCACAATCGAGGACTCGTACCGAAAGCAAGTGGTCATTGATGGAGAAACCTGCCTTCTGGACATCTTGGATACCGCTGGACAGGAGGAGTACTCGGCTATGCGGGATCAGTATATGCGCACGGGCGAGGGCTTCCTGTTAGTCTTTGCCGTAAATAGTGCAAAATCCTTTGAAGACATCGGCACATACCGCGAGCAGATCAAACGAGTCAAGGATGCCGAGGAGGTGCCAATGGTGCTAGTGGGCAATAAGTGTGACTTGACCACGTGGAACGTTAAAAACGAACAGGCAAGAGAGGTGGCCAAACAATACGGCATTCCATACATTGAGACATCAGCCAAGACGCGCATGGGCGTTGATGATGCATTTTACACACTCGTGCGCGAGATCCGAAAGGAC");
@@ -45,37 +43,6 @@ public class YN98_1_Test extends TestCase {
         return data;
     }
     
-    static public Tree getTree_sample0(Alignment data) throws Exception {
-        TreeParser tree = new TreeParser();
-        tree.initByName("taxa", data,
-                "newick", "(((human:1.6667276805951001,liza:1.6667276805951001):1.7137605617323786,(chicken:1.6780683322532925,tribolium:1.6780683322532925):1.7024199100741861):93.03370812766852,fly:96.41419636999599):0.0;",
-                "IsLabelledNewick", true);
-        return tree;
-    }
-    
-    @Test
-    public void testYN98_sample0() throws Exception {
-    	
-        Alignment data = getCodonAlignment();
-        Tree tree = getTree_sample0(data);
-
-        RealParameter f = new RealParameter(new Double[]{0.21232809709968758,0.292956974771638,0.11086021329597975,0.38385471483269473});
-        Frequencies nucleoFrequencies = new Frequencies();
-        nucleoFrequencies.initByName("frequencies", f, "estimate", false);
-
-        YN98 yn98 = new YN98();
-        yn98.initByName("kappa", "2.3046949838646555", "omega", "1.0", "nucleoFrequencies", nucleoFrequencies);
-
-        SiteModel siteModel = new SiteModel();
-        siteModel.initByName("substModel", yn98);
-
-        TreeLikelihood likelihood = newTreeLikelihood();
-        likelihood.initByName("data", data, "tree", tree, "siteModel", siteModel);
-
-        double fLogP = likelihood.calculateLogP();
-        assertEquals(fLogP, -838.9757864452677, BEASTTestCase.PRECISION);
-    }
-    
     static public Tree getTree_sample500000(Alignment data) throws Exception {
         TreeParser tree = new TreeParser();
         tree.initByName("taxa", data,
@@ -85,25 +52,42 @@ public class YN98_1_Test extends TestCase {
     }
     
     @Test
-    public void testYN98_sample500000() throws Exception {
-    	
+    public void testOneStructEachSiteLikelihood() throws Exception {
+        
         Alignment data = getCodonAlignment();
         Tree tree = getTree_sample500000(data);
-
-        RealParameter f = new RealParameter(new Double[]{0.2140365728337246,0.29317049897596853,0.10983236706946545,0.38296056112084154});
+        
+        //use FilteredAlignment to create a sub data for each site
+        FilteredAlignment site1 = new FilteredAlignment();
+        site1.initByName("data", data, "filter", "1");
+        
+        RealParameter f = new RealParameter(new Double[]{0.2, 0.1, 0.3, 0.4});
         Frequencies nucleoFrequencies = new Frequencies();
         nucleoFrequencies.initByName("frequencies", f, "estimate", false);
-
-        YN98 yn98 = new YN98();
-        yn98.initByName("kappa", "2.368504291751431", "omega", "1.0", "nucleoFrequencies", nucleoFrequencies);
-
-        SiteModel siteModel = new SiteModel();
-        siteModel.initByName("substModel", yn98);
-
-        TreeLikelihood likelihood = newTreeLikelihood();
-        likelihood.initByName("data", data, "tree", tree, "siteModel", siteModel);
-
-        double fLogP = likelihood.calculateLogP();
-        assertEquals(fLogP, 35836.80484159377, BEASTTestCase.PRECISION);
+        
+        RealParameter codonProb1 = new RealParameter(new Double[]{
+        		0.031350262,0.016678685,0.024086503,0.013927975,0.025667266,0.019513173,0.001036515,
+        		0.019661785,0.004234123,0.021709737,0.023116887,0.008893605,0.023613895,0.016321916,
+        		0.021248437,0.034586834,0.013469791,0.013974397,0.019040362,0.023127154,0.012276834,
+        		0.016818336,0.013005605,0.016724293,0.031102112,0.025201710,0.002783288,0.028634640,
+        		0.011845951,0.035306332,0.007706424,0.016484928,0.001266775,0.015199627,0.024995155,
+        		0.027195620,0.022472747,0.008187028,0.029989578,0.003142386,0.027191536,0.010992749,
+        		0.010295569,0.005584570,0.029299030,0.006562422,0.004537246,0.009528992,0.002336504,
+        		0.002458360,0.004808568,0.014593801,0.006875164,0.009996637,0.019877895,0.012218437,
+        		0.026721705,0.015533992,0.020767555,0.021984981,0.012235612});
+        
+        OneStruct site1_oneStruct = new OneStruct();
+        
+        site1_oneStruct.initByName("kappa", "1.5", "omega", "0.9", "nucleoFrequencies", nucleoFrequencies, "codonProb", codonProb1);
+        
+        SiteModel site1_siteModel = new SiteModel();
+        site1_siteModel.initByName("substModel", site1_oneStruct);
+        
+        TreeLikelihoodSimplified site1_likelihood = new TreeLikelihoodSimplified();
+        site1_likelihood.initByName("data", site1, "tree", tree, "siteModel", site1_siteModel);
+        
+        System.setOut(new PrintStream(new FileOutputStream("/home/kuangyu/Desktop/debugging_OneStruct.txt")));
+        site1_likelihood.calculateLogP();
     }
+    
 }

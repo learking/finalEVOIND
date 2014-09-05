@@ -1,5 +1,8 @@
 package test.beast.evolution.likelihood;
 
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+
 import org.junit.Test;
 
 import test.beast.BEASTTestCase;
@@ -45,6 +48,7 @@ public class YN98_1_Test extends TestCase {
         return data;
     }
     
+    /*
     static public Tree getTree_sample0(Alignment data) throws Exception {
         TreeParser tree = new TreeParser();
         tree.initByName("taxa", data,
@@ -75,6 +79,7 @@ public class YN98_1_Test extends TestCase {
         double fLogP = likelihood.calculateLogP();
         assertEquals(fLogP, -838.9757864452677, BEASTTestCase.PRECISION);
     }
+    */
     
     static public Tree getTree_sample500000(Alignment data) throws Exception {
         TreeParser tree = new TreeParser();
@@ -103,6 +108,8 @@ public class YN98_1_Test extends TestCase {
         TreeLikelihood likelihood = newTreeLikelihood();
         likelihood.initByName("data", data, "tree", tree, "siteModel", siteModel);
 
+        //on desktop
+        System.setOut(new PrintStream(new FileOutputStream("/home/kuangyu/Desktop/debugging_YN98.txt")));
         double fLogP = likelihood.calculateLogP();
         assertEquals(fLogP, 35836.80484159377, BEASTTestCase.PRECISION);
     }

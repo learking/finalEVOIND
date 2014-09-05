@@ -1,5 +1,8 @@
 package beast.evolution.substitutionmodel;
 
+import java.util.Arrays;
+
+import test.beast.BEASTTestCase;
 import beast.core.Input;
 import beast.core.Input.Validate;
 import beast.core.parameter.RealParameter;
@@ -30,31 +33,57 @@ public class OneStruct extends GeneralSubstitutionModel {
 
         // this must be synchronized to avoid being called simultaneously by
         // two different likelihood threads - AJD
-        synchronized (this) {
-            if (updateMatrix) {
-            	System.out.println("rateMatrix was updated");
-                setupRelativeRates();
-                setupRateMatrix();
-                
-/*        		double sumValue = 0;
-        		for (int rowNr=0; rowNr < rateMatrix.length; rowNr++){
-        			for (int colNr=0; colNr < rateMatrix.length; colNr++){
-        				sumValue += rateMatrix[rowNr][colNr];
-        			}
-        		}
-        		System.out.println("sumValue:" + sumValue);*/
-        		
-                double[][] copyRateMatrix = new double[nrOfStates][nrOfStates];
-        		for (int rowNr=0; rowNr < rateMatrix.length; rowNr++){
-        			for (int colNr=0; colNr < rateMatrix.length; colNr++){
-        				copyRateMatrix[rowNr][colNr] = rateMatrix[rowNr][colNr];
-        			}
-        		}
-                eigenDecomposition = eigenSystem.decomposeMatrix(copyRateMatrix);
-                updateMatrix = false;
-            }
-        }
-        //System.out.println(node.getNr() + " " + Arrays.deepToString(rateMatrix));
+		synchronized (this) {
+			if (updateMatrix) {
+				System.out.println("rateMatrix was updated");
+				setupRelativeRates();
+				setupRateMatrix();
+
+				System.out.println(node.getNr() + " " + Arrays.deepToString(rateMatrix));
+				try {
+					double sumValue = 0;
+					for (int rowNr = 0; rowNr < rateMatrix.length; rowNr++) {
+						for (int colNr = 0; colNr < rateMatrix.length; colNr++) {
+							sumValue += rateMatrix[rowNr][colNr];
+						}
+					}
+					if (sumValue > BEASTTestCase.PRECISION) {
+						throw new Exception("sumValue should be zero");
+					}
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				try {
+					double sumRate = 0;
+					for (int rowNr = 0; rowNr < rateMatrix.length; rowNr++) {
+							sumRate += -rateMatrix[rowNr][rowNr] * diagMatrix[rowNr];
+					}
+					
+					if (Math.abs(sumRate - 1.0) > BEASTTestCase.PRECISION) {
+						System.out.println("sumRate" + sumRate);
+						throw new Exception("sumRate should be 1");
+					}
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				// System.out.println("sumValue:" + sumValue);
+
+				double[][] copyRateMatrix = new double[nrOfStates][nrOfStates];
+				for (int rowNr = 0; rowNr < rateMatrix.length; rowNr++) {
+					for (int colNr = 0; colNr < rateMatrix.length; colNr++) {
+						copyRateMatrix[rowNr][colNr] = rateMatrix[rowNr][colNr];
+					}
+				}
+				eigenDecomposition = eigenSystem
+						.decomposeMatrix(copyRateMatrix);
+				updateMatrix = false;
+			}
+		}
+		
 /*		double sumValue = 0;
 		for (int rowNr=0; rowNr < rateMatrix.length; rowNr++){
 			for (int colNr=0; colNr < rateMatrix.length; colNr++){
@@ -94,7 +123,7 @@ public class OneStruct extends GeneralSubstitutionModel {
             }
         }
         
-        //System.out.println(node.getNr() + " probabilities:" + Arrays.toString(matrix));
+        System.out.println(node.getNr() + " probabilities:" + Arrays.toString(matrix));
     } // getTransitionProbabilities
     
     //change frequenciesInput and ratesInput from "REQUIRED" to "OPTIONAL"

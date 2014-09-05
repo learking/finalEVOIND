@@ -74,6 +74,7 @@ public class HKYforTest extends SubstitutionModel.NucleotideBase {
         double distance = (fStartTime - fEndTime) * fRate;
 
         if (updateMatrix) {
+        	System.out.println("rateMatrix was updated");
             setupMatrix();
         }
 

@@ -72,7 +72,10 @@ public class testHKYrateM extends TestCase {
         assertEquals(fLogP, 35836.80484159377, BEASTTestCase.PRECISION);
         */
         
-        System.setOut(new PrintStream(new FileOutputStream("/home/kuangyu/Desktop/debugging_HKY.txt")));
+        //desktop
+        //System.setOut(new PrintStream(new FileOutputStream("/home/kuangyu/Desktop/debugging_HKY.txt")));
+        //mac
+        System.setOut(new PrintStream(new FileOutputStream("/Users/kwang2/Desktop/debugging_HKY.txt")));        
         TreeLikelihoodSimplified likelihoodSimple = new TreeLikelihoodSimplified();
         likelihoodSimple.initByName("data", data, "tree", tree, "siteModel", siteModel);
         double fLogP_2 = likelihoodSimple.calculateLogP();

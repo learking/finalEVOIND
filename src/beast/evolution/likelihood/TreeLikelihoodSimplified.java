@@ -151,7 +151,7 @@ public class TreeLikelihoodSimplified extends GenericTreeLikelihood {
         } else {
             likelihoodCore = new BeerLikelihoodCore(nStateCount);
         }
-        System.out.println("TreeLikelihood uses " + likelihoodCore.getClass().getName());
+        //System.out.println("TreeLikelihood uses " + likelihoodCore.getClass().getName());
 
         proportionInvariant = m_siteModel.getProportionInvariant();
         m_siteModel.setPropInvariantIsCategory(false);
@@ -297,15 +297,6 @@ public class TreeLikelihoodSimplified extends GenericTreeLikelihood {
         }
     }
 
-    /**
-     * Calculate the log likelihood of the current state.
-     *
-     * @return the log likelihood.
-     */
-    double m_fScale = 1.01;
-    int m_nScale = 0;
-    int X = 100;
-
     @Override
     public double calculateLogP() throws Exception {
         final TreeInterface tree = treeInput.get();
@@ -334,8 +325,8 @@ public class TreeLikelihoodSimplified extends GenericTreeLikelihood {
         
         final double branchRate = branchRateModel.getRateForBranch(node);
         final double branchTime = node.getLength() * branchRate;
-        System.out.println("branch rate:" + branchRate);
-        System.out.println("branch time:" + branchTime);
+        //System.out.println("branch rate:" + branchRate);
+        //System.out.println("branch time:" + branchTime);
 
         // First update the transition probability matrix(ices) for this branch
         //if (!node.isRoot() && (update != Tree.IS_CLEAN || branchTime != m_StoredBranchLengths[iNode])) {
@@ -345,9 +336,9 @@ public class TreeLikelihoodSimplified extends GenericTreeLikelihood {
             likelihoodCore.setNodeMatrixForUpdate(iNode);
             for (int i = 0; i < m_siteModel.getCategoryCount(); i++) {
                 final double jointBranchRate = m_siteModel.getRateForCategory(i, node) * branchRate;
-                System.out.println("jointBranchRate:" + branchTime);              
+                //System.out.println("jointBranchRate:" + branchTime);              
                 substitutionModel.getTransitionProbabilities(node, parent.getHeight(), node.getHeight(), jointBranchRate, probabilities);
-                System.out.println("parentHeight:" + parent.getHeight() + " node height:" + node.getHeight() );
+                //System.out.println("parentHeight:" + parent.getHeight() + " node height:" + node.getHeight() );
                 //System.out.println(node.getNr() + " " + Arrays.toString(probabilities));
                 likelihoodCore.setNodeMatrix(iNode, i, probabilities);
             }

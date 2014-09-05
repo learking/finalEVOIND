@@ -1,7 +1,5 @@
 package beast.evolution.substitutionmodel;
 
-import java.util.Arrays;
-
 import beast.core.Input;
 import beast.core.Input.Validate;
 import beast.core.parameter.RealParameter;
@@ -16,8 +14,6 @@ public class OneStruct extends GeneralSubstitutionModel {
     //frequencies for pi_A, pi_C, pi_G and pi_T
     public Input<Frequencies> nucleoFreqInput =
             new Input<Frequencies>("nucleoFrequencies", "substitution model equilibrium state frequencies", Validate.REQUIRED);
-    // one prob for each codon (dimension should be 61)
-    // AAAAACAAGAATACAACCACGACTAGAAGCAGGAGTATAATCATGATTCAACACCAGCATCCACCCCCGCCTCGACGCCGGCGTCTACTCCTGCTTGAAGACGAGGATGCAGCCGCGGCTGGAGGCGGGGGTGTAGTCGTGGTTTACTATTCATCCTCGTCTTGCTGGTGTTTATTCTTGTTT
     public Input<RealParameter> codonProbInput = new Input<RealParameter>("codonProb", "probabilities for each codon in OneStruct model", Validate.REQUIRED);    
     double[] codonProb;
     
@@ -27,7 +23,7 @@ public class OneStruct extends GeneralSubstitutionModel {
     
     @Override
     public void getTransitionProbabilities(Node node, double fStartTime, double fEndTime, double fRate, double[] matrix) {
-        double distance = (fStartTime - fEndTime) * fRate;
+    	double distance = (fStartTime - fEndTime) * fRate;
 
         int i, j, k;
         double temp;
@@ -36,13 +32,36 @@ public class OneStruct extends GeneralSubstitutionModel {
         // two different likelihood threads - AJD
         synchronized (this) {
             if (updateMatrix) {
+            	System.out.println("rateMatrix was updated");
                 setupRelativeRates();
                 setupRateMatrix();
-                eigenDecomposition = eigenSystem.decomposeMatrix(rateMatrix);
+                
+/*        		double sumValue = 0;
+        		for (int rowNr=0; rowNr < rateMatrix.length; rowNr++){
+        			for (int colNr=0; colNr < rateMatrix.length; colNr++){
+        				sumValue += rateMatrix[rowNr][colNr];
+        			}
+        		}
+        		System.out.println("sumValue:" + sumValue);*/
+        		
+                double[][] copyRateMatrix = new double[nrOfStates][nrOfStates];
+        		for (int rowNr=0; rowNr < rateMatrix.length; rowNr++){
+        			for (int colNr=0; colNr < rateMatrix.length; colNr++){
+        				copyRateMatrix[rowNr][colNr] = rateMatrix[rowNr][colNr];
+        			}
+        		}
+                eigenDecomposition = eigenSystem.decomposeMatrix(copyRateMatrix);
                 updateMatrix = false;
             }
         }
-        System.out.println(node.getNr() + " " + Arrays.deepToString(rateMatrix));
+        //System.out.println(node.getNr() + " " + Arrays.deepToString(rateMatrix));
+/*		double sumValue = 0;
+		for (int rowNr=0; rowNr < rateMatrix.length; rowNr++){
+			for (int colNr=0; colNr < rateMatrix.length; colNr++){
+				sumValue += rateMatrix[rowNr][colNr];
+			}
+		}
+		System.out.println(node.getNr() + " " + "sumValue:" + sumValue);*/
         
         // is the following really necessary?
         // implemented a pool of iexp matrices to support multiple threads
@@ -75,7 +94,7 @@ public class OneStruct extends GeneralSubstitutionModel {
             }
         }
         
-        System.out.println(node.getNr() + " probabilities:" + Arrays.toString(matrix));
+        //System.out.println(node.getNr() + " probabilities:" + Arrays.toString(matrix));
     } // getTransitionProbabilities
     
     //change frequenciesInput and ratesInput from "REQUIRED" to "OPTIONAL"
@@ -547,6 +566,30 @@ public class OneStruct extends GeneralSubstitutionModel {
                 rateMatrix[i][j] = rateMatrix[i][j] / fSubst;
             }
         }
+    }
+    
+    /**
+     * This function returns the Eigen vectors.
+     *
+     * @return the array
+     */
+    @Override
+    public EigenDecomposition getEigenDecomposition(Node node) {
+        synchronized (this) {
+            if (updateMatrix) {
+                setupRelativeRates();
+                setupRateMatrix();
+                double[][] copyRateMatrix = new double[nrOfStates][nrOfStates];
+        		for (int rowNr=0; rowNr < rateMatrix.length; rowNr++){
+        			for (int colNr=0; colNr < rateMatrix.length; colNr++){
+        				copyRateMatrix[rowNr][colNr] = rateMatrix[rowNr][colNr];
+        			}
+        		}
+                eigenDecomposition = eigenSystem.decomposeMatrix(copyRateMatrix);
+                updateMatrix = false;
+            }
+        }
+        return eigenDecomposition;
     }
     
     @Override

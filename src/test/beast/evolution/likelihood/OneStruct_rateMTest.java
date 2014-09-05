@@ -86,7 +86,9 @@ public class OneStruct_rateMTest extends TestCase {
         TreeLikelihoodSimplified site1_likelihood = new TreeLikelihoodSimplified();
         site1_likelihood.initByName("data", site1, "tree", tree, "siteModel", site1_siteModel);
         
-        System.setOut(new PrintStream(new FileOutputStream("/home/kuangyu/Desktop/debugging_OneStruct.txt")));
+        //System.setOut(new PrintStream(new FileOutputStream("/home/kuangyu/Desktop/debugging_OneStruct.txt")));
+        //on mac
+        //System.setOut(new PrintStream(new FileOutputStream("/Users/kwang2/Desktop/debugging_OneStruct.txt")));        
         site1_likelihood.calculateLogP();
     }
     

@@ -517,8 +517,6 @@ public class YN98Fast extends SubstitutionModel.Base{
 			double fEndTime, double fRate, double[] matrix) {
         double distance = (fStartTime - fEndTime) * fRate;
         System.out.println("distance:" + distance);
-        int i, j, k;
-        double temp;
 
         // this must be synchronized to avoid being called simultaneously by
         // two different likelihood threads - AJD
@@ -535,14 +533,20 @@ public class YN98Fast extends SubstitutionModel.Base{
 
         //get exponentiated matrix and assign it to matrix
         //first: determine a reliable (and fast) method to do expm
-        double[] tmpMatrix = MatrixFunctions.expm(doubleRateMatrix.mul(distance)).toArray();
-        System.out.println("tmpMatrix:" + Arrays.toString(tmpMatrix));	
+        double[][] tmpMatrix = MatrixFunctions.expm(doubleRateMatrix.mul(distance)).toArray2();
+        System.out.println("tmpMatrix:" + Arrays.deepToString(tmpMatrix));	
         
-        //copy values
-        for(int tmpI =0; tmpI < tmpMatrix.length;tmpI++)
-        	matrix[tmpI] = tmpMatrix[tmpI];
+        //copy values        
+        int i,j;
+        int u = 0;
+        for (i = 0; i < nrOfStates; i++) {
+            for (j = 0; j < nrOfStates; j++) {
+                matrix[u] = tmpMatrix[i][j];
+                u++;
+            }
+        }
   
-        System.out.println("probabilities:" + Arrays.toString(matrix));	
+        System.out.println("probabilities:" + Arrays.toString(matrix));		
 	}
 
 	//should be useless method

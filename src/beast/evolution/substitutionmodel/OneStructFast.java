@@ -2,7 +2,9 @@ package beast.evolution.substitutionmodel;
 
 import java.util.Arrays;
 
-import test.beast.BEASTTestCase;
+import org.jblas.DoubleMatrix;
+import org.jblas.MatrixFunctions;
+
 import beast.core.Input;
 import beast.core.Input.Validate;
 import beast.core.parameter.RealParameter;
@@ -11,7 +13,8 @@ import beast.evolution.datatype.DataType;
 import beast.evolution.datatype.UserDataType;
 import beast.evolution.tree.Node;
 
-public class OneStruct extends GeneralSubstitutionModel {
+public class OneStructFast  extends SubstitutionModel.Base {
+
     public Input<RealParameter> kappaInput = new Input<RealParameter>("kappa", "kappa parameter in YN98 model", Validate.REQUIRED);
     public Input<RealParameter> omegaInput = new Input<RealParameter>("omega", "kappa parameter in YN98 model", Validate.REQUIRED);
     public Input<Frequencies> nucleoFreqInput =
@@ -19,134 +22,17 @@ public class OneStruct extends GeneralSubstitutionModel {
     public Input<RealParameter> codonProbInput = new Input<RealParameter>("codonProb", "probabilities for each codon in OneStruct model", Validate.REQUIRED);    
     double[] codonProb;
     
+    double[][] rateMatrix;
+    DoubleMatrix doubleRateMatrix;
+    
     Frequencies nucleoFrequencies;
     double[][] symmMatrix;
     double[] diagMatrix;
     
-    @Override
-    public void getTransitionProbabilities(Node node, double fStartTime, double fEndTime, double fRate, double[] matrix) {
-    	double distance = (fStartTime - fEndTime) * fRate;
-        System.out.println("distance:" + distance);
-        
-        int i, j, k;
-        double temp;
-
-        // this must be synchronized to avoid being called simultaneously by
-        // two different likelihood threads - AJD
-		synchronized (this) {
-			if (updateMatrix) {
-				System.out.println("rateMatrix was updated");
-				setupRelativeRates();
-				setupRateMatrix();
-
-				System.out.println("rateMatrix:" + Arrays.deepToString(rateMatrix));
-				try {
-					double sumValue = 0;
-					for (int rowNr = 0; rowNr < rateMatrix.length; rowNr++) {
-						for (int colNr = 0; colNr < rateMatrix.length; colNr++) {
-							sumValue += rateMatrix[rowNr][colNr];
-						}
-					}
-					if (sumValue > BEASTTestCase.PRECISION) {
-						throw new Exception("sumValue should be zero");
-					}
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-				try {
-					double sumRate = 0;
-					for (int rowNr = 0; rowNr < rateMatrix.length; rowNr++) {
-							sumRate += -rateMatrix[rowNr][rowNr] * diagMatrix[rowNr];
-					}
-					
-					if (Math.abs(sumRate - 1.0) > BEASTTestCase.PRECISION) {
-						System.out.println("sumRate" + sumRate);
-						throw new Exception("sumRate should be 1");
-					}
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				// System.out.println("sumValue:" + sumValue);
-
-				double[][] copyRateMatrix = new double[nrOfStates][nrOfStates];
-				for (int rowNr = 0; rowNr < rateMatrix.length; rowNr++) {
-					for (int colNr = 0; colNr < rateMatrix.length; colNr++) {
-						copyRateMatrix[rowNr][colNr] = rateMatrix[rowNr][colNr];
-					}
-				}
-				eigenDecomposition = eigenSystem
-						.decomposeMatrix(copyRateMatrix);
-				updateMatrix = false;
-			}
-		}
-		
-/*		double sumValue = 0;
-		for (int rowNr=0; rowNr < rateMatrix.length; rowNr++){
-			for (int colNr=0; colNr < rateMatrix.length; colNr++){
-				sumValue += rateMatrix[rowNr][colNr];
-			}
-		}
-		System.out.println(node.getNr() + " " + "sumValue:" + sumValue);*/
-        
-        // is the following really necessary?
-        // implemented a pool of iexp matrices to support multiple threads
-        // without creating a new matrix each call. - AJD
-        // a quick timing experiment shows no difference - RRB
-        double[] iexp = new double[nrOfStates * nrOfStates];
-        // Eigen vectors
-        double[] Evec = eigenDecomposition.getEigenVectors();
-        // inverse Eigen vectors
-        double[] Ievc = eigenDecomposition.getInverseEigenVectors();
-        // Eigen values
-        double[] Eval = eigenDecomposition.getEigenValues();
-        for (i = 0; i < nrOfStates; i++) {
-            temp = Math.exp(distance * Eval[i]);
-            for (j = 0; j < nrOfStates; j++) {
-                iexp[i * nrOfStates + j] = Ievc[i * nrOfStates + j] * temp;
-            }
-        }
-
-        int u = 0;
-        for (i = 0; i < nrOfStates; i++) {
-            for (j = 0; j < nrOfStates; j++) {
-                temp = 0.0;
-                for (k = 0; k < nrOfStates; k++) {
-                    temp += Evec[i * nrOfStates + k] * iexp[k * nrOfStates + j];
-                }
-
-                matrix[u] = Math.abs(temp);
-                u++;
-            }
-        }
-        
-        System.out.println(node.getNr() + " probabilities:" + Arrays.toString(matrix));
-    } // getTransitionProbabilities
-    
-    //change frequenciesInput and ratesInput from "REQUIRED" to "OPTIONAL"
-    public OneStruct() {
-    	frequenciesInput.setRule(Validate.OPTIONAL);
-        ratesInput.setRule(Validate.OPTIONAL);
-        try {
-        	frequenciesInput.setValue(null, this);
-        	ratesInput.setValue(null, this);
-        } catch (Exception e) {
-        	e.printStackTrace();
-			// TODO: handle exception
-		}
-    }
-    
+    protected boolean updateMatrix = true;
+	
     @Override
     public void initAndValidate() throws Exception {
-        if (frequenciesInput.get() != null) {
-            throw new Exception("the frequencies attribute should not be used. Use the nucleoFrequencies instead");
-        }
-        if (ratesInput.get() != null) {
-            throw new Exception("the rates attribute should not be used. Use the individual rates rateAC, rateCG, etc, instead.");
-        }
 
         // set codonProb here (codonProb will not be changed after initialization)
         codonProb = new double[codonProbInput.get().getDimension()];
@@ -154,6 +40,7 @@ public class OneStruct extends GeneralSubstitutionModel {
         	codonProb[i] = codonProbInput.get().getValue(i);
         }
         // sanity check
+        /*
         double totalCodonP = 0.0;
         for(int i=0;i<codonProb.length;i++)
         {
@@ -163,17 +50,16 @@ public class OneStruct extends GeneralSubstitutionModel {
         	System.out.format("totalCodonP value is:" + "%f%n", totalCodonP); 
             throw new Exception("Codon probabilities should sum up to 1.");
         }
+        */
         
         nucleoFrequencies = nucleoFreqInput.get();
         updateMatrix = true;
         nrOfStates = 61;
-
-        eigenSystem = createEigenSystem();
         
         symmMatrix = new double[nrOfStates][nrOfStates];
         diagMatrix = new double[nrOfStates];
         rateMatrix = new double[nrOfStates][nrOfStates];
-
+        doubleRateMatrix = new DoubleMatrix();
     }
     
     void setupDiagMatrix(){
@@ -188,9 +74,7 @@ public class OneStruct extends GeneralSubstitutionModel {
     	}
     	return codonProbResult;
     }
-    /**
-     * sets up rate matrix *
-     */
+    
     void setupSymmMatrix(){
     	
     	final double k = kappaInput.get().getValue();
@@ -558,10 +442,6 @@ public class OneStruct extends GeneralSubstitutionModel {
         //System.out.println(Arrays.deepToString(symmMatrix));
     }
     
-    @Override
-    protected void setupRelativeRates() {}
-    
-    @Override
     protected void setupRateMatrix() {
     	setupSymmMatrix();
     	setupDiagMatrix();
@@ -597,36 +477,56 @@ public class OneStruct extends GeneralSubstitutionModel {
         }
     }
     
-    /**
-     * This function returns the Eigen vectors.
-     *
-     * @return the array
-     */
-    @Override
-    public EigenDecomposition getEigenDecomposition(Node node) {
-        synchronized (this) {
-            if (updateMatrix) {
-                setupRelativeRates();
-                setupRateMatrix();
-                double[][] copyRateMatrix = new double[nrOfStates][nrOfStates];
-        		for (int rowNr=0; rowNr < rateMatrix.length; rowNr++){
-        			for (int colNr=0; colNr < rateMatrix.length; colNr++){
-        				copyRateMatrix[rowNr][colNr] = rateMatrix[rowNr][colNr];
-        			}
-        		}
-                eigenDecomposition = eigenSystem.decomposeMatrix(copyRateMatrix);
-                updateMatrix = false;
-            }
-        }
-        return eigenDecomposition;
-    }
-    
     @Override
     public double[] getFrequencies() {
     	double[] codonP = getCodonProb();
     	return codonP;
     }
     
+	@Override
+	public void getTransitionProbabilities(Node node, double fStartTime,
+			double fEndTime, double fRate, double[] matrix) {
+        double distance = (fStartTime - fEndTime) * fRate;
+        System.out.println("distance:" + distance);
+
+        // this must be synchronized to avoid being called simultaneously by
+        // two different likelihood threads - AJD
+        synchronized (this) {
+            if (updateMatrix) {
+                setupRateMatrix();
+                doubleRateMatrix = new DoubleMatrix(rateMatrix);
+                System.out.println("doubleM:");
+                doubleRateMatrix.print();
+                System.out.println("rateM:" + Arrays.deepToString(rateMatrix));
+                updateMatrix = false;
+            }
+        }
+
+        //get exponentiated matrix and assign it to matrix
+        //first: determine a reliable (and fast) method to do expm
+        double[][] tmpMatrix = MatrixFunctions.expm(doubleRateMatrix.mul(distance)).toArray2();
+        System.out.println("tmpMatrix:" + Arrays.deepToString(tmpMatrix));	
+        
+        //copy values        
+        int i,j;
+        int u = 0;
+        for (i = 0; i < nrOfStates; i++) {
+            for (j = 0; j < nrOfStates; j++) {
+                matrix[u] = tmpMatrix[i][j];
+                u++;
+            }
+        }
+  
+        System.out.println("probabilities:" + Arrays.toString(matrix));	
+	}
+
+	//should be useless
+	@Override
+	public EigenDecomposition getEigenDecomposition(Node node) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
     @Override
     public boolean canHandleDataType(DataType dataType) throws Exception {
         if (dataType instanceof Codon) {
@@ -639,29 +539,5 @@ public class OneStruct extends GeneralSubstitutionModel {
         }
         throw new Exception("Can only handle codon data");
     }
-    
-    /***************************************************************************************/
-    //for testing purpose, need to be disabled after testing
-    /***************************************************************************************/    
-    /**
-     * access to (copy of) rate matrix *
-     */
-    @Override
-    public double[][] getRateMatrix() {
-        return rateMatrix.clone();
-    }
-    
-    public double[][] getSymmMatrix() {
-        return symmMatrix.clone();
-    }
-    
-    public void prepareMatricesForTest(){
-        setupRelativeRates();
-        setupRateMatrix();
-    }
-    
-    public double[] getDiagMatrix() {
-        return diagMatrix.clone();
-    }
-    
+
 }

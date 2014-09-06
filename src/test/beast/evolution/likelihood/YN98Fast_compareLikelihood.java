@@ -74,6 +74,8 @@ public class YN98Fast_compareLikelihood  extends TestCase {
         TreeLikelihoodSimplified likelihoodSimple = new TreeLikelihoodSimplified();
         likelihoodSimple.initByName("data", data, "tree", tree, "siteModel", siteModel);
         double fLogP = likelihoodSimple.calculateLogP();
+        System.out.println("TreeLikelihood is:" + fLogP);
         //assertEquals(fLogP_2, 35836.80484159377, BEASTTestCase.PRECISION);
     }
+
 }

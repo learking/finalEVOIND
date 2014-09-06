@@ -336,10 +336,9 @@ public class TreeLikelihoodSimplified extends GenericTreeLikelihood {
             likelihoodCore.setNodeMatrixForUpdate(iNode);
             for (int i = 0; i < m_siteModel.getCategoryCount(); i++) {
                 final double jointBranchRate = m_siteModel.getRateForCategory(i, node) * branchRate;
-                //System.out.println("jointBranchRate:" + branchTime);              
+                System.out.println("jointBranchRate:" + jointBranchRate);              
                 substitutionModel.getTransitionProbabilities(node, parent.getHeight(), node.getHeight(), jointBranchRate, probabilities);
-                //System.out.println("parentHeight:" + parent.getHeight() + " node height:" + node.getHeight() );
-                //System.out.println(node.getNr() + " " + Arrays.toString(probabilities));
+                System.out.println("parentHeight:" + parent.getHeight() + " node height:" + node.getHeight() );
                 likelihoodCore.setNodeMatrix(iNode, i, probabilities);
             }
             update |= Tree.IS_DIRTY;

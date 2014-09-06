@@ -11,5 +11,6 @@
 	<classpathentry kind="lib" path="/beast2-2.1.3/lib/fest.jar"/>
 	<classpathentry kind="lib" path="/beast2-2.1.3/lib/jam.jar"/>
 	<classpathentry kind="lib" path="/beast2-2.1.3/lib/junit-4.8.2.jar"/>
+	<classpathentry kind="lib" path="lib/jblas-1.2.3-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -19,20 +19,6 @@ public class YN98 extends GeneralSubstitutionModel {
     //frequencies for pi_A, pi_C, pi_G and pi_T
     public Input<Frequencies> nucleoFreqInput =
             new Input<Frequencies>("nucleoFrequencies", "substitution model equilibrium state frequencies", Validate.REQUIRED);
-    //example setting Frequencies:
-    /*
-    <substModel id="TIM" spec="GTR">
-		<parameter dimension="1" id="rateAC.alignment" lower="0.0" minordimension="1" name="rateAC" value="0.2"/>
-		<parameter dimension="1" id="rateAG.alignment" lower="0.0" minordimension="1" name="rateAG" value="5.0"/>
-		<parameter dimension="1" id="rateAT.alignment" lower="0.0" minordimension="1" name="rateAT" value="0.5"/>
-		<parameter dimension="1" id="rateCG.alignment" lower="0.0" minordimension="1" name="rateCG" value="0.5"/>
-		<parameter dimension="1" id="rateCT.alignment" lower="0.0" minordimension="1" name="rateCT" value="1.0"/>
-		<parameter dimension="1" id="rateGT.alignment" lower="0.0" minordimension="1" name="rateGT" value="0.2"/>
-        <frequencies id="freqs" spec="Frequencies">
-			<parameter name='frequencies' value='0.25 0.25 0.25 0.25'/>
-		</frequencies>
-    </substModel>
-    */
     
     Frequencies nucleoFrequencies;
     double[][] symmMatrix;

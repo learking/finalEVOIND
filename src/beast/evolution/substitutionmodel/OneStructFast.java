@@ -30,7 +30,19 @@ public class OneStructFast  extends SubstitutionModel.Base {
     double[] diagMatrix;
     
     protected boolean updateMatrix = true;
+    private boolean storedUpdateMatrix = true;
 	
+    //change frequenciesInput and ratesInput from "REQUIRED" to "OPTIONAL"
+    public OneStructFast() {
+    	frequenciesInput.setRule(Validate.OPTIONAL);
+        try {
+        	frequenciesInput.setValue(null, this);
+        } catch (Exception e) {
+        	e.printStackTrace();
+			// TODO: handle exception
+		}
+    }
+    
     @Override
     public void initAndValidate() throws Exception {
 
@@ -487,7 +499,7 @@ public class OneStructFast  extends SubstitutionModel.Base {
 	public void getTransitionProbabilities(Node node, double fStartTime,
 			double fEndTime, double fRate, double[] matrix) {
         double distance = (fStartTime - fEndTime) * fRate;
-        System.out.println("distance:" + distance);
+        //System.out.println("distance:" + distance);
 
         // this must be synchronized to avoid being called simultaneously by
         // two different likelihood threads - AJD
@@ -495,9 +507,9 @@ public class OneStructFast  extends SubstitutionModel.Base {
             if (updateMatrix) {
                 setupRateMatrix();
                 doubleRateMatrix = new DoubleMatrix(rateMatrix);
-                System.out.println("doubleM:");
-                doubleRateMatrix.print();
-                System.out.println("rateM:" + Arrays.deepToString(rateMatrix));
+                //System.out.println("doubleM:");
+                //doubleRateMatrix.print();
+                //System.out.println("rateM:" + Arrays.deepToString(rateMatrix));
                 updateMatrix = false;
             }
         }
@@ -505,7 +517,7 @@ public class OneStructFast  extends SubstitutionModel.Base {
         //get exponentiated matrix and assign it to matrix
         //first: determine a reliable (and fast) method to do expm
         double[][] tmpMatrix = MatrixFunctions.expm(doubleRateMatrix.mul(distance)).toArray2();
-        System.out.println("tmpMatrix:" + Arrays.deepToString(tmpMatrix));	
+        //System.out.println("tmpMatrix:" + Arrays.deepToString(tmpMatrix));	
         
         //copy values        
         int i,j;
@@ -517,7 +529,7 @@ public class OneStructFast  extends SubstitutionModel.Base {
             }
         }
   
-        System.out.println("probabilities:" + Arrays.toString(matrix));	
+        //System.out.println("probabilities:" + Arrays.toString(matrix));	
 	}
 
 	//should be useless
@@ -527,6 +539,32 @@ public class OneStructFast  extends SubstitutionModel.Base {
 		return null;
 	}
 
+    /**
+     * CalculationNode implementation follows *
+     */
+    @Override
+    public void store() {
+        storedUpdateMatrix = updateMatrix;
+        super.store();
+    }
+
+    /**
+     * Restore the additional stored state
+     */
+    @Override
+    public void restore() {
+        updateMatrix = storedUpdateMatrix;
+        super.restore();
+
+    }
+    
+    @Override
+    protected boolean requiresRecalculation() {
+        // we only get here if something is dirty
+        updateMatrix = true;
+        return true;
+    }
+    
     @Override
     public boolean canHandleDataType(DataType dataType) throws Exception {
         if (dataType instanceof Codon) {

@@ -23,6 +23,7 @@
 	<property name="report" value="${buildEVOIND}/junitreport"/>
 
 	<path id="classpath">
+                <fileset dir="${libEVOIND}" includes="jblas-1.2.3-SNAPSHOT.jar"/>
         <pathelement path="${buildEVOIND}"/>
 		<fileset dir="${libBeast2}" includes="junit-4.8.2.jar"/>
         <pathelement path="${beast2classpath}"/>

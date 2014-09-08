@@ -1,4 +1,4 @@
-package test.beast.evolution.likelihood;
+package test.beast.evolution.substmodel;
 
 import java.io.FileOutputStream;
 import java.io.PrintStream;

@@ -1,4 +1,4 @@
-package test.beast.evolution.likelihood;
+package test.beast.evolution.substmodel;
 
 import java.io.FileOutputStream;
 import java.io.PrintStream;
@@ -21,7 +21,7 @@ import beast.evolution.tree.Tree;
 import beast.util.TreeParser;
 import junit.framework.TestCase;
 
-public class OneStruct_rateMTest extends TestCase {
+public class OneStructVsOneStructFast_rateMTest extends TestCase {
     protected TreeLikelihood newTreeLikelihood() {
     	System.setProperty("java.only","true");
         return new TreeLikelihood();

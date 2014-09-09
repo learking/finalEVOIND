@@ -65,7 +65,9 @@ public class TreeLikelihoodV extends GenericTreeLikelihood {
      * calculation engine *
      */
     protected LikelihoodCore likelihoodCore;
+    /*
     BeagleTreeLikelihood beagle;
+	*/
 
     /**
      * Plugin associated with inputs. Since none of the inputs are StateNodes, it
@@ -127,6 +129,7 @@ public class TreeLikelihoodV extends GenericTreeLikelihood {
         if (dataInput.get().getNrTaxa() != treeInput.get().getLeafNodeCount()) {        	
             throw new Exception("The number of nodes in the tree does not match the number of sequences");
         }
+        /*
         beagle = null;
         beagle = new BeagleTreeLikelihood();
         try {
@@ -140,7 +143,8 @@ public class TreeLikelihoodV extends GenericTreeLikelihood {
 		}
         // No Beagle instance was found, so we use the good old java likelihood core
         beagle = null;
-
+		*/
+	
         int nodeCount = treeInput.get().getNodeCount();
         System.out.println("lear: nodeCount" + nodeCount);
         
@@ -332,10 +336,12 @@ public class TreeLikelihoodV extends GenericTreeLikelihood {
 
     @Override
     public double calculateLogP() throws Exception {
+    	/*
         if (beagle != null) {
             logP = beagle.calculateLogP();
             return logP;
         }
+        */
         final TreeInterface tree = treeInput.get();
 
         if (traverse(tree.getRoot()) != Tree.IS_CLEAN)
@@ -466,9 +472,11 @@ public class TreeLikelihoodV extends GenericTreeLikelihood {
      */
     @Override
     protected boolean requiresRecalculation() {
+    	/*
         if (beagle != null) {
             return beagle.requiresRecalculation();
         }
+        */
         hasDirt = Tree.IS_CLEAN;
 
         if (dataInput.get().isDirtyCalculation()) {
@@ -488,11 +496,13 @@ public class TreeLikelihoodV extends GenericTreeLikelihood {
 
     @Override
     public void store() {
+    	/*
         if (beagle != null) {
             beagle.store();
             super.store();
             return;
         }
+        */
         if (likelihoodCore != null) {
             likelihoodCore.store();
         }
@@ -502,11 +512,13 @@ public class TreeLikelihoodV extends GenericTreeLikelihood {
 
     @Override
     public void restore() {
+    	/*
         if (beagle != null) {
             beagle.restore();
             super.restore();
             return;
         }
+        */
         if (likelihoodCore != null) {
             likelihoodCore.restore();
         }

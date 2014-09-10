@@ -607,4 +607,24 @@ public class YN98Fast extends SubstitutionModel.Base{
         throw new Exception("Can only handle codon data");
     }
 
+    /***************************************************************************************/
+    //for testing purpose, need to be disabled after testing
+    /***************************************************************************************/    
+    /**
+     * access to (copy of) rate matrix *
+     */
+    public double[][] getRateMatrix() {
+        return rateMatrix.clone();
+    }
+    
+    public double[][] getSymmMatrix() {
+        return symmMatrix.clone();
+    }  
+    
+    public double[] getDiagMatrix() {
+        return diagMatrix.clone();
+    }
+    public void prepareMatricesForTest(){
+        setupRateMatrix();
+    }
 }

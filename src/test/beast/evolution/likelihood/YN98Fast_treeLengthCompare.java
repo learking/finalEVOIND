@@ -14,13 +14,15 @@ import beast.evolution.alignment.Sequence;
 import beast.evolution.datatype.UserDataType;
 import beast.evolution.likelihood.TreeLikelihood;
 import beast.evolution.likelihood.TreeLikelihoodSimplified;
+import beast.evolution.likelihood.TreeLikelihoodV;
 import beast.evolution.sitemodel.SiteModel;
 import beast.evolution.substitutionmodel.Frequencies;
 import beast.evolution.substitutionmodel.YN98;
+import beast.evolution.substitutionmodel.YN98Fast;
 import beast.evolution.tree.Tree;
 import beast.util.TreeParser;
 
-public class YN98_compareLikelihood  extends TestCase {
+public class YN98Fast_treeLengthCompare  extends TestCase {
     protected TreeLikelihood newTreeLikelihood() {
     	System.setProperty("java.only","true");
         return new TreeLikelihood();
@@ -52,7 +54,7 @@ public class YN98_compareLikelihood  extends TestCase {
     }
     
     @Test
-    public void testYN98_sample500000() throws Exception {
+    public void testYN98Fast_sample500000() throws Exception {
     	
         Alignment data = getCodonAlignment();
         Tree tree = getTree_sample500000(data);
@@ -61,21 +63,20 @@ public class YN98_compareLikelihood  extends TestCase {
         Frequencies nucleoFrequencies = new Frequencies();
         nucleoFrequencies.initByName("frequencies", f, "estimate", false);
 
-        YN98 yn98 = new YN98();
+        YN98Fast yn98 = new YN98Fast();
         yn98.initByName("kappa", "2.368504291751431", "omega", "1.0", "nucleoFrequencies", nucleoFrequencies);
 
         SiteModel siteModel = new SiteModel();
         siteModel.initByName("substModel", yn98);
-
-        TreeLikelihood likelihood = newTreeLikelihood();
-        likelihood.initByName("data", data, "tree", tree, "siteModel", siteModel);
-        double fLogP = likelihood.calculateLogP();
-        assertEquals(fLogP, 35836.80484159377, BEASTTestCase.PRECISION);
         
+        //on mac
+        System.setOut(new PrintStream(new FileOutputStream("/Users/kwang2/Desktop/debugging_YN98Fast.txt")));
         //System.setOut(new PrintStream(new FileOutputStream("/home/kuangyu/Desktop/debugging_YN98.txt")));
-        TreeLikelihoodSimplified likelihoodSimple = new TreeLikelihoodSimplified();
+        TreeLikelihoodV likelihoodSimple = new TreeLikelihoodV();
         likelihoodSimple.initByName("data", data, "tree", tree, "siteModel", siteModel);
-        double fLogP_2 = likelihoodSimple.calculateLogP();
-        assertEquals(fLogP_2, 35836.80484159377, BEASTTestCase.PRECISION);
+        double fLogP = likelihoodSimple.calculateLogP();
+        System.out.println("TreeLikelihood is:" + fLogP);
+        //assertEquals(fLogP_2, 35836.80484159377, BEASTTestCase.PRECISION);
     }
+
 }

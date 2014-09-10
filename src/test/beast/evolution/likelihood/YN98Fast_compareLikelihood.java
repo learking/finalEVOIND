@@ -7,7 +7,6 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 
-import test.beast.BEASTTestCase;
 import beast.core.parameter.RealParameter;
 import beast.evolution.alignment.Alignment;
 import beast.evolution.alignment.Sequence;
@@ -16,7 +15,6 @@ import beast.evolution.likelihood.TreeLikelihood;
 import beast.evolution.likelihood.TreeLikelihoodSimplified;
 import beast.evolution.sitemodel.SiteModel;
 import beast.evolution.substitutionmodel.Frequencies;
-import beast.evolution.substitutionmodel.YN98;
 import beast.evolution.substitutionmodel.YN98Fast;
 import beast.evolution.tree.Tree;
 import beast.util.TreeParser;
@@ -44,7 +42,7 @@ public class YN98Fast_compareLikelihood  extends TestCase {
         return data;
     }
     
-    static public Tree getTree_sample500000(Alignment data) throws Exception {
+    static public Tree getTree_1(Alignment data) throws Exception {
         TreeParser tree = new TreeParser();
         tree.initByName("taxa", data,
                 "newick", "((human:1.486397618641998,(fly:0.7972225185644256,tribolium:0.7972225185644256):0.6891751000775724):0.9323295960287876,(chicken:1.181379831183816,liza:1.181379831183816):1.2373473834869697):0.0;",
@@ -53,10 +51,10 @@ public class YN98Fast_compareLikelihood  extends TestCase {
     }
     
     @Test
-    public void testYN98Fast_sample500000() throws Exception {
+    public void testYN98Fast_1() throws Exception {
     	
         Alignment data = getCodonAlignment();
-        Tree tree = getTree_sample500000(data);
+        Tree tree = getTree_1(data);
 
         RealParameter f = new RealParameter(new Double[]{0.2140365728337246,0.29317049897596853,0.10983236706946545,0.38296056112084154});
         Frequencies nucleoFrequencies = new Frequencies();
@@ -69,7 +67,7 @@ public class YN98Fast_compareLikelihood  extends TestCase {
         siteModel.initByName("substModel", yn98);
         
         //on mac
-        System.setOut(new PrintStream(new FileOutputStream("/Users/kwang2/Desktop/debugging_YN98Fast.txt")));
+        //System.setOut(new PrintStream(new FileOutputStream("/Users/kwang2/Desktop/debugging_YN98Fast.txt")));
         //System.setOut(new PrintStream(new FileOutputStream("/home/kuangyu/Desktop/debugging_YN98.txt")));
         TreeLikelihoodSimplified likelihoodSimple = new TreeLikelihoodSimplified();
         likelihoodSimple.initByName("data", data, "tree", tree, "siteModel", siteModel);
@@ -78,4 +76,71 @@ public class YN98Fast_compareLikelihood  extends TestCase {
         //assertEquals(fLogP_2, 35836.80484159377, BEASTTestCase.PRECISION);
     }
 
+    static public Tree getTree_2(Alignment data) throws Exception {
+        TreeParser tree = new TreeParser();
+        tree.initByName("taxa", data,
+                "newick", "((human:14.86397618641998,(fly:7.972225185644256,tribolium:7.972225185644256):6.891751000775724):9.323295960287876,(chicken:11.81379831183816,liza:11.81379831183816):12.373473834869697):0.0;",
+                "IsLabelledNewick", true);
+        return tree;
+    }
+    
+    @Test
+    public void testYN98Fast_2() throws Exception {
+    	
+        Alignment data = getCodonAlignment();
+        Tree tree = getTree_2(data);
+
+        RealParameter f = new RealParameter(new Double[]{0.2140365728337246,0.29317049897596853,0.10983236706946545,0.38296056112084154});
+        Frequencies nucleoFrequencies = new Frequencies();
+        nucleoFrequencies.initByName("frequencies", f, "estimate", false);
+
+        YN98Fast yn98 = new YN98Fast();
+        yn98.initByName("kappa", "2.368504291751431", "omega", "1.0", "nucleoFrequencies", nucleoFrequencies);
+
+        SiteModel siteModel = new SiteModel();
+        siteModel.initByName("substModel", yn98);
+        
+        //on mac
+        //System.setOut(new PrintStream(new FileOutputStream("/Users/kwang2/Desktop/debugging_YN98Fast.txt")));
+        //System.setOut(new PrintStream(new FileOutputStream("/home/kuangyu/Desktop/debugging_YN98.txt")));
+        TreeLikelihoodSimplified likelihoodSimple = new TreeLikelihoodSimplified();
+        likelihoodSimple.initByName("data", data, "tree", tree, "siteModel", siteModel);
+        double fLogP = likelihoodSimple.calculateLogP();
+        System.out.println("TreeLikelihood is:" + fLogP);
+        //assertEquals(fLogP_2, 35836.80484159377, BEASTTestCase.PRECISION);
+    }
+    
+    static public Tree getTree_3(Alignment data) throws Exception {
+        TreeParser tree = new TreeParser();
+        tree.initByName("taxa", data,
+                "newick", "((((human:0.2875822683162259,liza:0.2875822683162259):0.11712789441759525,chicken:0.40471016273382115):0.1462622073342687,fly:0.5509723700680899):2.9378739494747114E12,tribolium:2.937873949475262E12):0.0;",
+                "IsLabelledNewick", true);
+        return tree;
+    }
+    
+    @Test
+    public void testYN98Fast_3() throws Exception {
+    	
+        Alignment data = getCodonAlignment();
+        Tree tree = getTree_3(data);
+
+        RealParameter f = new RealParameter(new Double[]{0.25,0.25,0.25,0.25});
+        Frequencies nucleoFrequencies = new Frequencies();
+        nucleoFrequencies.initByName("frequencies", f, "estimate", false);
+
+        YN98Fast yn98 = new YN98Fast();
+        yn98.initByName("kappa", "1.0", "omega", "1.0", "nucleoFrequencies", nucleoFrequencies);
+
+        SiteModel siteModel = new SiteModel();
+        siteModel.initByName("substModel", yn98);
+        
+        //on mac
+        //System.setOut(new PrintStream(new FileOutputStream("/Users/kwang2/Desktop/debugging_YN98Fast.txt")));
+        //System.setOut(new PrintStream(new FileOutputStream("/home/kuangyu/Desktop/debugging_YN98.txt")));
+        TreeLikelihoodSimplified likelihoodSimple = new TreeLikelihoodSimplified();
+        likelihoodSimple.initByName("data", data, "tree", tree, "siteModel", siteModel);
+        double fLogP = likelihoodSimple.calculateLogP();
+        System.out.println("TreeLikelihood is:" + fLogP);
+        //assertEquals(fLogP_2, 35836.80484159377, BEASTTestCase.PRECISION);
+    }
 }

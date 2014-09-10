@@ -23,16 +23,20 @@ public class YN98Fast_stepByStep extends TestCase {
 	        
 	        yn98.prepareMatricesForTest();
 
-	        System.setOut(new PrintStream(new FileOutputStream("/Users/kwang2/Desktop/YN98_symmM.txt")));
+	        System.setOut(new PrintStream(new FileOutputStream("/home/kuangyu/Desktop/YN98_symmM_updated.txt")));
+	        //System.setOut(new PrintStream(new FileOutputStream("/Users/kwang2/Desktop/YN98_symmM.txt")));
 	        System.out.println(Arrays.deepToString(yn98.getSymmMatrix()));
 	        
-	        System.setOut(new PrintStream(new FileOutputStream("/Users/kwang2/Desktop/YN98_diagM.txt")));
+	        System.setOut(new PrintStream(new FileOutputStream("/home/kuangyu/Desktop/YN98_diagM_updated.txt")));
+	        //System.setOut(new PrintStream(new FileOutputStream("/Users/kwang2/Desktop/YN98_diagM.txt")));
 	        System.out.println(Arrays.toString(yn98.getDiagMatrix()));
 	        
-	        System.setOut(new PrintStream(new FileOutputStream("/Users/kwang2/Desktop/YN98_rateM.txt")));
+	        System.setOut(new PrintStream(new FileOutputStream("/home/kuangyu/Desktop/YN98_rateM_updated.txt")));
+	        //System.setOut(new PrintStream(new FileOutputStream("/Users/kwang2/Desktop/YN98_rateM.txt")));
 	        System.out.println(Arrays.deepToString(yn98.getRateMatrix()));
 	        
-	        System.setOut(new PrintStream(new FileOutputStream("/Users/kwang2/Desktop/YN98_freq.txt")));
+	        System.setOut(new PrintStream(new FileOutputStream("/home/kuangyu/Desktop/YN98_freq_updated.txt")));
+	        //System.setOut(new PrintStream(new FileOutputStream("/Users/kwang2/Desktop/YN98_freq.txt")));
 	        System.out.println(Arrays.toString(yn98.getFrequencies()));
 		}
 }

@@ -346,68 +346,70 @@ public class YN98Fast extends SubstitutionModel.Base{
     	//0:A 1:C 2:G 3:T
     	double[] nucleoFreqs = nucleoFrequencies.getFreqs();
     	
+    	double totalProb = 1.0 - nucleoFreqs[3] * nucleoFreqs[0] * nucleoFreqs[0] - nucleoFreqs[3] * nucleoFreqs[0] * nucleoFreqs[2] - nucleoFreqs[3] * nucleoFreqs[2] * nucleoFreqs[0];
+    	
     	//example:
-    	diagMatrix[0] = nucleoFreqs[0] * nucleoFreqs[0] * nucleoFreqs[0]; // AAA
-    	diagMatrix[1] = nucleoFreqs[0] * nucleoFreqs[0] * nucleoFreqs[1]; // AAC
-    	diagMatrix[2] = nucleoFreqs[0] * nucleoFreqs[0] * nucleoFreqs[2]; // AAG
-    	diagMatrix[3] = nucleoFreqs[0] * nucleoFreqs[0] * nucleoFreqs[3]; // AAT
-    	diagMatrix[4] = nucleoFreqs[0] * nucleoFreqs[1] * nucleoFreqs[0]; // ACA
-    	diagMatrix[5] = nucleoFreqs[0] * nucleoFreqs[1] * nucleoFreqs[1]; // ACC
-    	diagMatrix[6] = nucleoFreqs[0] * nucleoFreqs[1] * nucleoFreqs[2]; // ACG
-    	diagMatrix[7] = nucleoFreqs[0] * nucleoFreqs[1] * nucleoFreqs[3]; // ACT
-    	diagMatrix[8] = nucleoFreqs[0] * nucleoFreqs[2] * nucleoFreqs[0]; // AGA
-    	diagMatrix[9] = nucleoFreqs[0] * nucleoFreqs[2] * nucleoFreqs[1]; // AGC
-    	diagMatrix[10] = nucleoFreqs[0] * nucleoFreqs[2] * nucleoFreqs[2]; // AGG
-    	diagMatrix[11] = nucleoFreqs[0] * nucleoFreqs[2] * nucleoFreqs[3]; // AGT
-    	diagMatrix[12] = nucleoFreqs[0] * nucleoFreqs[3] * nucleoFreqs[0]; // ATA
-    	diagMatrix[13] = nucleoFreqs[0] * nucleoFreqs[3] * nucleoFreqs[1]; // ATC
-    	diagMatrix[14] = nucleoFreqs[0] * nucleoFreqs[3] * nucleoFreqs[2]; // ATG
-    	diagMatrix[15] = nucleoFreqs[0] * nucleoFreqs[3] * nucleoFreqs[3]; // ATT
-    	diagMatrix[16] = nucleoFreqs[1] * nucleoFreqs[0] * nucleoFreqs[0]; // CAA
-    	diagMatrix[17] = nucleoFreqs[1] * nucleoFreqs[0] * nucleoFreqs[1]; // CAC
-    	diagMatrix[18] = nucleoFreqs[1] * nucleoFreqs[0] * nucleoFreqs[2]; // CAG
-    	diagMatrix[19] = nucleoFreqs[1] * nucleoFreqs[0] * nucleoFreqs[3]; // CAT
-    	diagMatrix[20] = nucleoFreqs[1] * nucleoFreqs[1] * nucleoFreqs[0]; // CCA
-    	diagMatrix[21] = nucleoFreqs[1] * nucleoFreqs[1] * nucleoFreqs[1]; // CCC
-    	diagMatrix[22] = nucleoFreqs[1] * nucleoFreqs[1] * nucleoFreqs[2]; // CCG
-    	diagMatrix[23] = nucleoFreqs[1] * nucleoFreqs[1] * nucleoFreqs[3]; // CCT
-    	diagMatrix[24] = nucleoFreqs[1] * nucleoFreqs[2] * nucleoFreqs[0]; // CGA
-    	diagMatrix[25] = nucleoFreqs[1] * nucleoFreqs[2] * nucleoFreqs[1]; // CGC
-    	diagMatrix[26] = nucleoFreqs[1] * nucleoFreqs[2] * nucleoFreqs[2]; // CGG
-    	diagMatrix[27] = nucleoFreqs[1] * nucleoFreqs[2] * nucleoFreqs[3]; // CGT
-    	diagMatrix[28] = nucleoFreqs[1] * nucleoFreqs[3] * nucleoFreqs[0]; // CTA
-    	diagMatrix[29] = nucleoFreqs[1] * nucleoFreqs[3] * nucleoFreqs[1]; // CTC
-    	diagMatrix[30] = nucleoFreqs[1] * nucleoFreqs[3] * nucleoFreqs[2]; // CTG
-    	diagMatrix[31] = nucleoFreqs[1] * nucleoFreqs[3] * nucleoFreqs[3]; // CTT
-    	diagMatrix[32] = nucleoFreqs[2] * nucleoFreqs[0] * nucleoFreqs[0]; // GAA
-    	diagMatrix[33] = nucleoFreqs[2] * nucleoFreqs[0] * nucleoFreqs[1]; // GAC
-    	diagMatrix[34] = nucleoFreqs[2] * nucleoFreqs[0] * nucleoFreqs[2]; // GAG
-    	diagMatrix[35] = nucleoFreqs[2] * nucleoFreqs[0] * nucleoFreqs[3]; // GAT
-    	diagMatrix[36] = nucleoFreqs[2] * nucleoFreqs[1] * nucleoFreqs[0]; // GCA
-    	diagMatrix[37] = nucleoFreqs[2] * nucleoFreqs[1] * nucleoFreqs[1]; // GCC
-    	diagMatrix[38] = nucleoFreqs[2] * nucleoFreqs[1] * nucleoFreqs[2]; // GCG
-    	diagMatrix[39] = nucleoFreqs[2] * nucleoFreqs[1] * nucleoFreqs[3]; // GCT
-    	diagMatrix[40] = nucleoFreqs[2] * nucleoFreqs[2] * nucleoFreqs[0]; // GGA
-    	diagMatrix[41] = nucleoFreqs[2] * nucleoFreqs[2] * nucleoFreqs[1]; // GGC
-    	diagMatrix[42] = nucleoFreqs[2] * nucleoFreqs[2] * nucleoFreqs[2]; // GGG
-    	diagMatrix[43] = nucleoFreqs[2] * nucleoFreqs[2] * nucleoFreqs[3]; // GGT
-    	diagMatrix[44] = nucleoFreqs[2] * nucleoFreqs[3] * nucleoFreqs[0]; // GTA
-    	diagMatrix[45] = nucleoFreqs[2] * nucleoFreqs[3] * nucleoFreqs[1]; // GTC
-    	diagMatrix[46] = nucleoFreqs[2] * nucleoFreqs[3] * nucleoFreqs[2]; // GTG
-    	diagMatrix[47] = nucleoFreqs[2] * nucleoFreqs[3] * nucleoFreqs[3]; // GTT
-    	diagMatrix[48] = nucleoFreqs[3] * nucleoFreqs[0] * nucleoFreqs[1]; // TAC
-    	diagMatrix[49] = nucleoFreqs[3] * nucleoFreqs[0] * nucleoFreqs[3]; // TAT
-    	diagMatrix[50] = nucleoFreqs[3] * nucleoFreqs[1] * nucleoFreqs[0]; // TCA
-    	diagMatrix[51] = nucleoFreqs[3] * nucleoFreqs[1] * nucleoFreqs[1]; // TCC
-    	diagMatrix[52] = nucleoFreqs[3] * nucleoFreqs[1] * nucleoFreqs[2]; // TCG
-    	diagMatrix[53] = nucleoFreqs[3] * nucleoFreqs[1] * nucleoFreqs[3]; // TCT
-    	diagMatrix[54] = nucleoFreqs[3] * nucleoFreqs[2] * nucleoFreqs[1]; // TGC
-    	diagMatrix[55] = nucleoFreqs[3] * nucleoFreqs[2] * nucleoFreqs[2]; // TGG
-    	diagMatrix[56] = nucleoFreqs[3] * nucleoFreqs[2] * nucleoFreqs[3]; // TGT
-    	diagMatrix[57] = nucleoFreqs[3] * nucleoFreqs[3] * nucleoFreqs[0]; // TTA
-    	diagMatrix[58] = nucleoFreqs[3] * nucleoFreqs[3] * nucleoFreqs[1]; // TTC
-    	diagMatrix[59] = nucleoFreqs[3] * nucleoFreqs[3] * nucleoFreqs[2]; // TTG
-    	diagMatrix[60] = nucleoFreqs[3] * nucleoFreqs[3] * nucleoFreqs[3]; // TTT
+    	diagMatrix[0] = nucleoFreqs[0] * nucleoFreqs[0] * nucleoFreqs[0] / totalProb; // AAA
+    	diagMatrix[1] = nucleoFreqs[0] * nucleoFreqs[0] * nucleoFreqs[1] / totalProb; // AAC
+    	diagMatrix[2] = nucleoFreqs[0] * nucleoFreqs[0] * nucleoFreqs[2] / totalProb; // AAG
+    	diagMatrix[3] = nucleoFreqs[0] * nucleoFreqs[0] * nucleoFreqs[3] / totalProb; // AAT
+    	diagMatrix[4] = nucleoFreqs[0] * nucleoFreqs[1] * nucleoFreqs[0] / totalProb; // ACA
+    	diagMatrix[5] = nucleoFreqs[0] * nucleoFreqs[1] * nucleoFreqs[1] / totalProb; // ACC
+    	diagMatrix[6] = nucleoFreqs[0] * nucleoFreqs[1] * nucleoFreqs[2] / totalProb; // ACG
+    	diagMatrix[7] = nucleoFreqs[0] * nucleoFreqs[1] * nucleoFreqs[3] / totalProb; // ACT
+    	diagMatrix[8] = nucleoFreqs[0] * nucleoFreqs[2] * nucleoFreqs[0] / totalProb; // AGA
+    	diagMatrix[9] = nucleoFreqs[0] * nucleoFreqs[2] * nucleoFreqs[1] / totalProb; // AGC
+    	diagMatrix[10] = nucleoFreqs[0] * nucleoFreqs[2] * nucleoFreqs[2] / totalProb; // AGG
+    	diagMatrix[11] = nucleoFreqs[0] * nucleoFreqs[2] * nucleoFreqs[3] / totalProb; // AGT
+    	diagMatrix[12] = nucleoFreqs[0] * nucleoFreqs[3] * nucleoFreqs[0] / totalProb; // ATA
+    	diagMatrix[13] = nucleoFreqs[0] * nucleoFreqs[3] * nucleoFreqs[1] / totalProb; // ATC
+    	diagMatrix[14] = nucleoFreqs[0] * nucleoFreqs[3] * nucleoFreqs[2] / totalProb; // ATG
+    	diagMatrix[15] = nucleoFreqs[0] * nucleoFreqs[3] * nucleoFreqs[3] / totalProb; // ATT
+    	diagMatrix[16] = nucleoFreqs[1] * nucleoFreqs[0] * nucleoFreqs[0] / totalProb; // CAA
+    	diagMatrix[17] = nucleoFreqs[1] * nucleoFreqs[0] * nucleoFreqs[1] / totalProb; // CAC
+    	diagMatrix[18] = nucleoFreqs[1] * nucleoFreqs[0] * nucleoFreqs[2] / totalProb; // CAG
+    	diagMatrix[19] = nucleoFreqs[1] * nucleoFreqs[0] * nucleoFreqs[3] / totalProb; // CAT
+    	diagMatrix[20] = nucleoFreqs[1] * nucleoFreqs[1] * nucleoFreqs[0] / totalProb; // CCA
+    	diagMatrix[21] = nucleoFreqs[1] * nucleoFreqs[1] * nucleoFreqs[1] / totalProb; // CCC
+    	diagMatrix[22] = nucleoFreqs[1] * nucleoFreqs[1] * nucleoFreqs[2] / totalProb; // CCG
+    	diagMatrix[23] = nucleoFreqs[1] * nucleoFreqs[1] * nucleoFreqs[3] / totalProb; // CCT
+    	diagMatrix[24] = nucleoFreqs[1] * nucleoFreqs[2] * nucleoFreqs[0] / totalProb; // CGA
+    	diagMatrix[25] = nucleoFreqs[1] * nucleoFreqs[2] * nucleoFreqs[1] / totalProb; // CGC
+    	diagMatrix[26] = nucleoFreqs[1] * nucleoFreqs[2] * nucleoFreqs[2] / totalProb; // CGG
+    	diagMatrix[27] = nucleoFreqs[1] * nucleoFreqs[2] * nucleoFreqs[3] / totalProb; // CGT
+    	diagMatrix[28] = nucleoFreqs[1] * nucleoFreqs[3] * nucleoFreqs[0] / totalProb; // CTA
+    	diagMatrix[29] = nucleoFreqs[1] * nucleoFreqs[3] * nucleoFreqs[1] / totalProb; // CTC
+    	diagMatrix[30] = nucleoFreqs[1] * nucleoFreqs[3] * nucleoFreqs[2] / totalProb; // CTG
+    	diagMatrix[31] = nucleoFreqs[1] * nucleoFreqs[3] * nucleoFreqs[3] / totalProb; // CTT
+    	diagMatrix[32] = nucleoFreqs[2] * nucleoFreqs[0] * nucleoFreqs[0] / totalProb; // GAA
+    	diagMatrix[33] = nucleoFreqs[2] * nucleoFreqs[0] * nucleoFreqs[1] / totalProb; // GAC
+    	diagMatrix[34] = nucleoFreqs[2] * nucleoFreqs[0] * nucleoFreqs[2] / totalProb; // GAG
+    	diagMatrix[35] = nucleoFreqs[2] * nucleoFreqs[0] * nucleoFreqs[3] / totalProb; // GAT
+    	diagMatrix[36] = nucleoFreqs[2] * nucleoFreqs[1] * nucleoFreqs[0] / totalProb; // GCA
+    	diagMatrix[37] = nucleoFreqs[2] * nucleoFreqs[1] * nucleoFreqs[1] / totalProb; // GCC
+    	diagMatrix[38] = nucleoFreqs[2] * nucleoFreqs[1] * nucleoFreqs[2] / totalProb; // GCG
+    	diagMatrix[39] = nucleoFreqs[2] * nucleoFreqs[1] * nucleoFreqs[3] / totalProb; // GCT
+    	diagMatrix[40] = nucleoFreqs[2] * nucleoFreqs[2] * nucleoFreqs[0] / totalProb; // GGA
+    	diagMatrix[41] = nucleoFreqs[2] * nucleoFreqs[2] * nucleoFreqs[1] / totalProb; // GGC
+    	diagMatrix[42] = nucleoFreqs[2] * nucleoFreqs[2] * nucleoFreqs[2] / totalProb; // GGG
+    	diagMatrix[43] = nucleoFreqs[2] * nucleoFreqs[2] * nucleoFreqs[3] / totalProb; // GGT
+    	diagMatrix[44] = nucleoFreqs[2] * nucleoFreqs[3] * nucleoFreqs[0] / totalProb; // GTA
+    	diagMatrix[45] = nucleoFreqs[2] * nucleoFreqs[3] * nucleoFreqs[1] / totalProb; // GTC
+    	diagMatrix[46] = nucleoFreqs[2] * nucleoFreqs[3] * nucleoFreqs[2] / totalProb; // GTG
+    	diagMatrix[47] = nucleoFreqs[2] * nucleoFreqs[3] * nucleoFreqs[3] / totalProb; // GTT
+    	diagMatrix[48] = nucleoFreqs[3] * nucleoFreqs[0] * nucleoFreqs[1] / totalProb; // TAC
+    	diagMatrix[49] = nucleoFreqs[3] * nucleoFreqs[0] * nucleoFreqs[3] / totalProb; // TAT
+    	diagMatrix[50] = nucleoFreqs[3] * nucleoFreqs[1] * nucleoFreqs[0] / totalProb; // TCA
+    	diagMatrix[51] = nucleoFreqs[3] * nucleoFreqs[1] * nucleoFreqs[1] / totalProb; // TCC
+    	diagMatrix[52] = nucleoFreqs[3] * nucleoFreqs[1] * nucleoFreqs[2] / totalProb; // TCG
+    	diagMatrix[53] = nucleoFreqs[3] * nucleoFreqs[1] * nucleoFreqs[3] / totalProb; // TCT
+    	diagMatrix[54] = nucleoFreqs[3] * nucleoFreqs[2] * nucleoFreqs[1] / totalProb; // TGC
+    	diagMatrix[55] = nucleoFreqs[3] * nucleoFreqs[2] * nucleoFreqs[2] / totalProb; // TGG
+    	diagMatrix[56] = nucleoFreqs[3] * nucleoFreqs[2] * nucleoFreqs[3] / totalProb; // TGT
+    	diagMatrix[57] = nucleoFreqs[3] * nucleoFreqs[3] * nucleoFreqs[0] / totalProb; // TTA
+    	diagMatrix[58] = nucleoFreqs[3] * nucleoFreqs[3] * nucleoFreqs[1] / totalProb; // TTC
+    	diagMatrix[59] = nucleoFreqs[3] * nucleoFreqs[3] * nucleoFreqs[2] / totalProb; // TTG
+    	diagMatrix[60] = nucleoFreqs[3] * nucleoFreqs[3] * nucleoFreqs[3] / totalProb; // TTT
     }
     
     protected void setupRateMatrix() {
@@ -447,6 +449,8 @@ public class YN98Fast extends SubstitutionModel.Base{
     
     @Override
     public double[] getFrequencies() {
+    	return diagMatrix;
+    	/*
     	//this function should return stationary (should use up-to-date frequencies)
     	// in YN98 case: pi_j1 * pi_j2 * pi_j3 / (1 - P(stop codon 1) - P(stop codon 2) - P(stop codon 3))
     	double [] codonFreqs = new double[nrOfStates];
@@ -522,6 +526,7 @@ public class YN98Fast extends SubstitutionModel.Base{
     	codonFreqs[60] = nucleoFreqs[3] * nucleoFreqs[3] * nucleoFreqs[3] / totalProb; // TTT
     	
         return codonFreqs;
+        */
     }
     
 	@Override

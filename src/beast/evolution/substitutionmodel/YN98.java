@@ -84,7 +84,7 @@ public class YN98 extends GeneralSubstitutionModel {
                 setupRateMatrix();
                 
                 //System.out.println(node.getNr() + " " + Arrays.deepToString(rateMatrix));
-                System.out.println("rateM:" + Arrays.deepToString(rateMatrix));
+                //System.out.println("rateM:" + Arrays.deepToString(rateMatrix));
 				try {
 					double sumValue = 0;
 					for (int rowNr = 0; rowNr < rateMatrix.length; rowNr++) {
@@ -159,7 +159,7 @@ public class YN98 extends GeneralSubstitutionModel {
         }
         
         //System.out.println(node.getNr() + " probabilities:" + Arrays.toString(matrix));
-        System.out.println("probabilities:" + Arrays.toString(matrix));
+        //System.out.println("probabilities:" + Arrays.toString(matrix));
     } // getTransitionProbabilities
     
     @Override

@@ -16,7 +16,7 @@ import beast.evolution.tree.Node;
 public class YN98Fast extends SubstitutionModel.Base{
 
     public Input<RealParameter> kappaInput = new Input<RealParameter>("kappa", "kappa parameter in YN98 model", Validate.REQUIRED);
-    public Input<RealParameter> omegaInput = new Input<RealParameter>("omega", "kappa parameter in YN98 model", Validate.REQUIRED);
+    public Input<RealParameter> omegaInput = new Input<RealParameter>("omega", "omega parameter in YN98 model", Validate.REQUIRED);
     //frequencies for pi_A, pi_C, pi_G and pi_T
     public Input<Frequencies> nucleoFreqInput =
             new Input<Frequencies>("nucleoFrequencies", "substitution model equilibrium state frequencies", Validate.REQUIRED);

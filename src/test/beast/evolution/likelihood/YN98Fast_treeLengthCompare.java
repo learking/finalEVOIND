@@ -48,8 +48,8 @@ public class YN98Fast_treeLengthCompare  extends TestCase {
     static public Tree getTree_sample500000(Alignment data) throws Exception {
         TreeParser tree = new TreeParser();
         tree.initByName("taxa", data,
-                "newick", "((human:1.486397618641998,(fly:0.7972225185644256,tribolium:0.7972225185644256):0.6891751000775724):0.9323295960287876,(chicken:1.181379831183816,liza:1.181379831183816):1.2373473834869697):0.0;",
-                "IsLabelledNewick", true);
+                "newick", "((human:57.66619591419408,(chicken:1,liza:1):55.20221284563319):100.1084016924085,(fly:141.99570570454645,tribolium:100.99570570454645):13.968133037888848):0.0;",
+                "IsLabelledNewick", true, "adjustTipHeights", false);
         return tree;
     }
     
@@ -59,20 +59,20 @@ public class YN98Fast_treeLengthCompare  extends TestCase {
         Alignment data = getCodonAlignment();
         Tree tree = getTree_sample500000(data);
 
-        RealParameter f = new RealParameter(new Double[]{0.2140365728337246,0.29317049897596853,0.10983236706946545,0.38296056112084154});
+        RealParameter f = new RealParameter(new Double[]{0.24959756277138598,0.2373464051301815,0.2874635647386307,0.22559246735980118});
         Frequencies nucleoFrequencies = new Frequencies();
         nucleoFrequencies.initByName("frequencies", f, "estimate", false);
 
         YN98Fast yn98 = new YN98Fast();
-        yn98.initByName("kappa", "2.368504291751431", "omega", "1.0", "nucleoFrequencies", nucleoFrequencies);
+        yn98.initByName("kappa", "1.2570094268705845", "omega", "1.5948723088784987E-4", "nucleoFrequencies", nucleoFrequencies);
 
         SiteModel siteModel = new SiteModel();
         siteModel.initByName("substModel", yn98);
         
         //on mac
-        System.setOut(new PrintStream(new FileOutputStream("/Users/kwang2/Desktop/debugging_YN98Fast.txt")));
+        //System.setOut(new PrintStream(new FileOutputStream("/Users/kwang2/Desktop/debugging_YN98Fast.txt")));
         //System.setOut(new PrintStream(new FileOutputStream("/home/kuangyu/Desktop/debugging_YN98.txt")));
-        TreeLikelihoodV likelihoodSimple = new TreeLikelihoodV();
+        TreeLikelihood likelihoodSimple = new TreeLikelihood();
         likelihoodSimple.initByName("data", data, "tree", tree, "siteModel", siteModel);
         double fLogP = likelihoodSimple.calculateLogP();
         System.out.println("TreeLikelihood is:" + fLogP);

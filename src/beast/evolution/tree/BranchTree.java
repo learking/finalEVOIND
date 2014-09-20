@@ -209,6 +209,10 @@ public class BranchTree extends Tree {
     	return branchLengths;
     }
     
+    public double getBranchLengthI(int nodeNr){
+    	return branchLengths[nodeNr];
+    }
+    
     /******
      * for testing purpose
      * *****/
@@ -216,5 +220,10 @@ public class BranchTree extends Tree {
     public void fakeStore(){
     	store();
     }
+
+	public void setBranchLengthI(int nodeNr, double newBranchLength) {
+		branchLengths[nodeNr] = newBranchLength;
+		//if reject, should be able to restore
+	}
     
 }

@@ -1,25 +1,25 @@
 package test.beast.evolution.likelihood;
 
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-
-import junit.framework.TestCase;
-
 import org.junit.Test;
 
 import beast.core.parameter.RealParameter;
 import beast.evolution.alignment.Alignment;
 import beast.evolution.alignment.Sequence;
 import beast.evolution.datatype.UserDataType;
+import beast.evolution.likelihood.BranchTreeLikelihood;
 import beast.evolution.likelihood.TreeLikelihood;
 import beast.evolution.likelihood.TreeLikelihoodSimplified;
 import beast.evolution.sitemodel.SiteModel;
 import beast.evolution.substitutionmodel.Frequencies;
+import beast.evolution.substitutionmodel.HKY;
 import beast.evolution.substitutionmodel.YN98Fast;
+import beast.evolution.tree.BranchTree;
 import beast.evolution.tree.Tree;
 import beast.util.TreeParser;
+import junit.framework.TestCase;
 
-public class YN98Fast_compareLikelihood  extends TestCase {
+public class BranchTreeLikelihoodTest extends TestCase {
+
     protected TreeLikelihood newTreeLikelihood() {
     	System.setProperty("java.only","true");
         return new TreeLikelihood();
@@ -42,19 +42,36 @@ public class YN98Fast_compareLikelihood  extends TestCase {
         return data;
     }
     
-    static public Tree getTree_1(Alignment data) throws Exception {
-        TreeParser tree = new TreeParser();
-        tree.initByName("taxa", data,
-                "newick", "((human:1.486397618641998,(fly:0.7972225185644256,tribolium:0.7972225185644256):0.6891751000775724):0.9323295960287876,(chicken:1.181379831183816,liza:1.181379831183816):1.2373473834869697):0.0;",
-                "IsLabelledNewick", true);
-        return tree;
+    static public Alignment getNucleotideAlignment() throws Exception {
+        Sequence human = new Sequence("human", "ATGACGGAATATAAGCTGGTGGTGGTGGGCGCCGGCGGTGTGGGCAAGAGTGCGCTGACCATCCAGCTGATCCAGAACCATTTTGTGGACGAATACGACCCCACTATAGAGGATTCCTACCGGAAGCAGGTGGTCATTGATGGGGAGACGTGCCTGTTGGACATCCTGGATACCGCCGGCCAGGAGGAGTACAGCGCCATGCGGGACCAGTACATGCGCACCGGGGAGGGCTTCCTGTGTGTGTTTGCCATCAACAACACCAAGTCTTTTGAGGACATCCACCAGTACAGGGAGCAGATCAAACGGGTGAAGGACTCGGATGACGTGCCCATGGTGCTGGTGGGGAACAAGTGTGACCTGGCTGCACGCACTGTGGAATCTCGGCAGGCTCAGGACCTCGCCCGAAGCTACGGCATCCCCTACATCGAGACCTCGGCCAAGACCCGGCAGGGAGTGGAGGATGCCTTCTACACGTTGGTGCGTGAGATCCGGCAGCAC");
+        Sequence fly = new Sequence("fly", "ATGACGGAATACAAATTGGTTGTTGTTGGTGCGGGAGGCGTTGGCAAATCGGCGTTGACCATCCAACTAATTCAGAATCATTTTGTTGACGAATACGATCCCACAATCGAGGACTCGTACCGAAAGCAAGTGGTCATTGATGGAGAAACCTGCCTTCTGGACATCTTGGATACCGCTGGACAGGAGGAGTACTCGGCTATGCGGGATCAGTATATGCGCACGGGCGAGGGCTTCCTGTTAGTCTTTGCCGTAAATAGTGCAAAATCCTTTGAAGACATCGGCACATACCGCGAGCAGATCAAACGAGTCAAGGATGCCGAGGAGGTGCCAATGGTGCTAGTGGGCAATAAGTGTGACTTGACCACGTGGAACGTTAAAAACGAACAGGCAAGAGAGGTGGCCAAACAATACGGCATTCCATACATTGAGACATCAGCCAAGACGCGCATGGGCGTTGATGATGCATTTTACACACTCGTGCGCGAGATCCGAAAGGAC");
+        Sequence chicken = new Sequence("chicken", "ATGACTGAGTATAAGCTTGTTGTCGTTGGAGCTGGTGGTGTGGGCAAGAGCGCCTTGACAATACAGCTCATTCAGAACCACTTTGTGGATGAGTATGACCCTACCATAGAGGATTCCTACAGAAAGCAAGTAGTAATTGATGGGGAAACCTGTCTCTTGGATATTCTTGATACAGCAGGTCAAGAAGAATATAGTGCAATGAGGGACCAATATATGAGAACAGGAGAAGGCTTTCTGTGTGTTTTTGCTATAAACAATACAAAATCTTTTGAAGATATTCACCATTATAGGGAACAAATAAAGAGAGTTAAAGACTCTGAAGATGTCCCAATGGTGCTAGTAGGAAACAAATGTGATTTGCCTTCCAGAACAGTAGATACAAAACAAGCTCAGGATTTAGCAAGAAGTTATGGAATTCCTTTTATTGAAACATCAGCAAAGACAAGACAGGGTGTTGATGATGCCTTCTATACATTAGTTCGAGAAATCAGAAAACAC");
+        Sequence liza = new Sequence("liza", "ATGACGGAATATAAGCTGGTTGTGGTAGGAGCTGGAGGTGTTGGCAAGAGCGCACTTACTATTCAGCTCATCCAGAATCACTTTGTGGACGAATATGACCCCACAATTGAGGACTCCTACAGAAAGCAGGTAGTTATTGACGGAGAGACGTGTCTCTTGGACATCCTGGACACTGCAGGTCAAGAGGAGTACAGCGCCATGAGAGATCAGTACATGAGGACAGGGGAGGGCTTTCTCTGTGTCTTTGCCATCAACAACACCAAGTCCTTCGAGGACATTCACCACTATAGAGAACAGATTAAGCGGGTGAAGGACTCTGAGGACGTCCCCATGGTGTTGGTGGGGAACAAGTGTGACCTCCCGTCCCGGACAGTGGACACCAAGCAGGCTCAGGACTTAGCACGCAGCTACGGCATTCCCTTTATTGAGACCTCAGCCAAAACCAGACAGGGCGTTGATGATGCCTTTTACACGTTAGTGCGAGAAATCCGCAAGCAT");
+        Sequence tribolium = new Sequence("tribolium", "ATGACTGAATACAAACTAGTAGTAGTTGGAGCAGGTGGTGTCGGCAAATCAGCTTTGACCATACAATTAATCCAAAATCACTTCGTCGACGAATACGACCCTACCATTGAAGACTCCTATCGAAAACAAGTAGTCATCGATGGGGAAACGTGTTTACTGGATATTTTGGATACGGCAGGACAGGAAGAATACAGTGCCATGCGAGACCAGTACATGAGGACAGGGGAAGGTTTCCTTTTGGTTTTCGCCGTTAATTCAGCTAAAAGTTTCGAAGACATTGGAACATACAGGGAACAAATTAAAAGGGTTAAAGATGCCGAAGTCGTACCAATGGTACTCGTAGGAAACAAATGCGACCTCACTTCGTGGGCTGTAGACATGAACCAAGCCAGAGAGGTGGCGCGGCAGTACGGGATCCCGTTCGTGGAGACGTCGGCGAAGACCAGGATGGGTGTGGACGAGGCATTTTACACGTTAGTTAGAGAAATACGTAAGGAC");
+
+        Alignment data = new Alignment();
+        data.initByName("sequence", human, "sequence", fly, "sequence", chicken, "sequence", liza, "sequence", tribolium,
+                "dataType", "nucleotide"
+        );
+        return data;
     }
     
+    static public Tree getSimpleTree(Alignment data) throws Exception {
+        TreeParser tree = new TreeParser();
+        tree.initByName("taxa", data,
+                "newick", "((human:70.0,(fly:1.1,tribolium:0.5):6.891751000775724):30.0,(chicken:22.0,liza:22.0):12.0);", "IsLabelledNewick", true, "adjustTipHeights", false);
+        return tree;
+    }
+	
+    
     @Test
-    public void testYN98Fast_1() throws Exception {
-    	
+    public void testBranchTreeLikelihood_1() throws Exception {
+    	//data
         Alignment data = getCodonAlignment();
-        Tree tree = getTree_1(data);
+        //tree and branchTree
+        Tree tree = getSimpleTree(data);
+		BranchTree branchTree = new BranchTree();
+		branchTree.initByName("initial", tree);
 
         RealParameter f = new RealParameter(new Double[]{0.2140365728337246,0.29317049897596853,0.10983236706946545,0.38296056112084154});
         Frequencies nucleoFrequencies = new Frequencies();
@@ -71,73 +88,49 @@ public class YN98Fast_compareLikelihood  extends TestCase {
         //System.setOut(new PrintStream(new FileOutputStream("/home/kuangyu/Desktop/debugging_YN98.txt")));
         TreeLikelihoodSimplified likelihoodSimple = new TreeLikelihoodSimplified();
         likelihoodSimple.initByName("data", data, "tree", tree, "siteModel", siteModel);
-        double fLogP = likelihoodSimple.calculateLogP();
-        System.out.println("TreeLikelihood is:" + fLogP);
-    }
+        double fLogP_tree = likelihoodSimple.calculateLogP();
+        System.out.println("TreeLikelihood is:" + fLogP_tree);
+        
+        BranchTreeLikelihood branchTreeLikelihood = new BranchTreeLikelihood();
+        branchTreeLikelihood.initByName("data", data, "tree", branchTree, "siteModel", siteModel);
+        double fLogP_branchTree = branchTreeLikelihood.calculateLogP();
+        System.out.println("TreeLikelihood is:" + fLogP_branchTree);
 
-    static public Tree getTree_2(Alignment data) throws Exception {
-        TreeParser tree = new TreeParser();
-        tree.initByName("taxa", data,
-                "newick", "((human:14.86397618641998,(fly:7.972225185644256,tribolium:7.972225185644256):6.891751000775724):9.323295960287876,(chicken:11.81379831183816,liza:11.81379831183816):12.373473834869697):0.0;",
-                "IsLabelledNewick", true);
-        return tree;
     }
     
+    
     @Test
-    public void testYN98Fast_2() throws Exception {
-    	
-        Alignment data = getCodonAlignment();
-        Tree tree = getTree_2(data);
+    public void testBranchTreeLikelihood_2() throws Exception {
+    	//data
+        Alignment data = getNucleotideAlignment();
+        //tree and branchTree
+        Tree tree = getSimpleTree(data);
+		BranchTree branchTree = new BranchTree();
+		branchTree.initByName("initial", tree);
 
         RealParameter f = new RealParameter(new Double[]{0.2140365728337246,0.29317049897596853,0.10983236706946545,0.38296056112084154});
         Frequencies nucleoFrequencies = new Frequencies();
         nucleoFrequencies.initByName("frequencies", f, "estimate", false);
 
-        YN98Fast yn98 = new YN98Fast();
-        yn98.initByName("kappa", "2.368504291751431", "omega", "1.0", "nucleoFrequencies", nucleoFrequencies);
+        HKY hky = new HKY();
+        hky.initByName("kappa", "2.368504291751431", "frequencies", nucleoFrequencies);
 
         SiteModel siteModel = new SiteModel();
-        siteModel.initByName("substModel", yn98);
+        siteModel.initByName("substModel", hky);
         
         //on mac
         //System.setOut(new PrintStream(new FileOutputStream("/Users/kwang2/Desktop/debugging_YN98Fast.txt")));
         //System.setOut(new PrintStream(new FileOutputStream("/home/kuangyu/Desktop/debugging_YN98.txt")));
         TreeLikelihoodSimplified likelihoodSimple = new TreeLikelihoodSimplified();
         likelihoodSimple.initByName("data", data, "tree", tree, "siteModel", siteModel);
-        double fLogP = likelihoodSimple.calculateLogP();
-        System.out.println("TreeLikelihood is:" + fLogP);
-    }
-    
-    static public Tree getTree_3(Alignment data) throws Exception {
-        TreeParser tree = new TreeParser();
-        tree.initByName("taxa", data,
-                "newick", "((((human:0.2875822683162259,liza:0.2875822683162259):0.11712789441759525,chicken:0.40471016273382115):0.1462622073342687,fly:0.5509723700680899):2.9378739494747114E12,tribolium:2.937873949475262E12):0.0;",
-                "IsLabelledNewick", true);
-        return tree;
-    }
-    
-    @Test
-    public void testYN98Fast_3() throws Exception {
-    	
-        Alignment data = getCodonAlignment();
-        Tree tree = getTree_3(data);
-
-        RealParameter f = new RealParameter(new Double[]{0.25,0.25,0.25,0.25});
-        Frequencies nucleoFrequencies = new Frequencies();
-        nucleoFrequencies.initByName("frequencies", f, "estimate", false);
-
-        YN98Fast yn98 = new YN98Fast();
-        yn98.initByName("kappa", "1.0", "omega", "1.0", "nucleoFrequencies", nucleoFrequencies);
-
-        SiteModel siteModel = new SiteModel();
-        siteModel.initByName("substModel", yn98);
+        double fLogP_tree = likelihoodSimple.calculateLogP();
+        System.out.println("TreeLikelihood is:" + fLogP_tree);
         
-        //on mac
-        //System.setOut(new PrintStream(new FileOutputStream("/Users/kwang2/Desktop/debugging_YN98Fast.txt")));
-        //System.setOut(new PrintStream(new FileOutputStream("/home/kuangyu/Desktop/debugging_YN98.txt")));
-        TreeLikelihoodSimplified likelihoodSimple = new TreeLikelihoodSimplified();
-        likelihoodSimple.initByName("data", data, "tree", tree, "siteModel", siteModel);
-        double fLogP = likelihoodSimple.calculateLogP();
-        System.out.println("TreeLikelihood is:" + fLogP);
+        BranchTreeLikelihood branchTreeLikelihood = new BranchTreeLikelihood();
+        branchTreeLikelihood.initByName("data", data, "tree", branchTree, "siteModel", siteModel);
+        double fLogP_branchTree = branchTreeLikelihood.calculateLogP();
+        System.out.println("TreeLikelihood is:" + fLogP_branchTree);
+
     }
+    
 }

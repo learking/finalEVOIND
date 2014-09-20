@@ -202,6 +202,13 @@ public class BranchTree extends Tree {
 		branchLengths = tmp;
     }
     
+    /*
+     * getters
+     * */
+    public double[] getCurrentBranchLengths(){
+    	return branchLengths;
+    }
+    
     /******
      * for testing purpose
      * *****/

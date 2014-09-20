@@ -7,17 +7,13 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 
-import test.beast.BEASTTestCase;
 import beast.core.parameter.RealParameter;
 import beast.evolution.alignment.Alignment;
 import beast.evolution.alignment.Sequence;
 import beast.evolution.datatype.UserDataType;
 import beast.evolution.likelihood.TreeLikelihood;
-import beast.evolution.likelihood.TreeLikelihoodSimplified;
-import beast.evolution.likelihood.TreeLikelihoodV;
 import beast.evolution.sitemodel.SiteModel;
 import beast.evolution.substitutionmodel.Frequencies;
-import beast.evolution.substitutionmodel.YN98;
 import beast.evolution.substitutionmodel.YN98Fast;
 import beast.evolution.tree.Tree;
 import beast.util.TreeParser;

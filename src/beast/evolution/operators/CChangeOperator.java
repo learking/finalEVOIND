@@ -37,15 +37,16 @@ public class CChangeOperator extends TreeOperator {
         final double oldBranchLength = branchTree.getBranchLengthI(i.getNr());
         final double newBranchLength = Math.abs(oldBranchLength + delta);
         
+
         // 3. set new branch length
         branchTree.setBranchLengthI(i.getNr(), newBranchLength);
-        
         //always zero
 		return logq;
 	}
 
     private double getDelta() {
-            return Randomizer.nextGaussian() * fSize;
+    	    //return Randomizer.nextGaussian() * fSize;
+            return Randomizer.nextDouble() * fSize;
     }
     
 }

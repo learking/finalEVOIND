@@ -11,7 +11,7 @@ import beast.core.Input.Validate;
 
 @Description("Logger to report length (sum of all branch lengths) of a tree")
 public class TreeLengthLogger  extends CalculationNode implements Loggable, Function {
-    public Input<BranchTree> treeInput = new Input<BranchTree>("tree", "tree to report height for.", Validate.REQUIRED);
+    public Input<BranchTree> treeInput = new Input<BranchTree>("tree", "tree to report entireLength for.", Validate.REQUIRED);
     
     @Override
     public void initAndValidate() {
@@ -22,7 +22,7 @@ public class TreeLengthLogger  extends CalculationNode implements Loggable, Func
     public void init(PrintStream out) throws Exception {
         final Tree tree = treeInput.get();
         if (getID() == null || getID().matches("\\s*")) {
-            out.print(tree.getID() + ".height\t");
+            out.print(tree.getID() + ".length\t");
         } else {
             out.print(getID() + "\t");
         }

@@ -231,6 +231,14 @@ public class BranchTree extends Tree {
     	return branchLengths[nodeNr];
     }
     
+    public double getEntireTreeLength(){
+    	double entireTreeLength = 0;
+    	for (int i = 0; i < nodeCount; i++){
+    		entireTreeLength += branchLengths[i];
+    	}
+    	return entireTreeLength;
+    }
+    
     /******
      * for testing purpose
      * *****/

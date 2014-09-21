@@ -1,0 +1,100 @@
+<beast version='2.0'
+       namespace='beast.evolution.alignment:beast.core:beast.evolution.tree.coalescent:beast.core.util:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.evolution.likelihood'>
+
+    <data id="alignment" dataType="codon">
+        <sequence taxon="human">	ATGACGGAATATAAGCTGGTGGTGGTGGGCGCCGGCGGTGTGGGCAAGAGTGCGCTGACCATCCAGCTGATCCAGAACCATTTTGTGGACGAATACGACCCCACTATAGAGGATTCCTACCGGAAGCAGGTGGTCATTGATGGGGAGACGTGCCTGTTGGACATCCTGGATACCGCCGGCCAGGAGGAGTACAGCGCCATGCGGGACCAGTACATGCGCACCGGGGAGGGCTTCCTGTGTGTGTTTGCCATCAACAACACCAAGTCTTTTGAGGACATCCACCAGTACAGGGAGCAGATCAAACGGGTGAAGGACTCGGATGACGTGCCCATGGTGCTGGTGGGGAACAAGTGTGACCTGGCTGCACGCACTGTGGAATCTCGGCAGGCTCAGGACCTCGCCCGAAGCTACGGCATCCCCTACATCGAGACCTCGGCCAAGACCCGGCAGGGAGTGGAGGATGCCTTCTACACGTTGGTGCGTGAGATCCGGCAGCAC		
+	</sequence>
+        <sequence taxon="fly">	ATGACGGAATACAAATTGGTTGTTGTTGGTGCGGGAGGCGTTGGCAAATCGGCGTTGACCATCCAACTAATTCAGAATCATTTTGTTGACGAATACGATCCCACAATCGAGGACTCGTACCGAAAGCAAGTGGTCATTGATGGAGAAACCTGCCTTCTGGACATCTTGGATACCGCTGGACAGGAGGAGTACTCGGCTATGCGGGATCAGTATATGCGCACGGGCGAGGGCTTCCTGTTAGTCTTTGCCGTAAATAGTGCAAAATCCTTTGAAGACATCGGCACATACCGCGAGCAGATCAAACGAGTCAAGGATGCCGAGGAGGTGCCAATGGTGCTAGTGGGCAATAAGTGTGACTTGACCACGTGGAACGTTAAAAACGAACAGGCAAGAGAGGTGGCCAAACAATACGGCATTCCATACATTGAGACATCAGCCAAGACGCGCATGGGCGTTGATGATGCATTTTACACACTCGTGCGCGAGATCCGAAAGGAC		
+	</sequence>
+        <sequence taxon="chicken">	ATGACTGAGTATAAGCTTGTTGTCGTTGGAGCTGGTGGTGTGGGCAAGAGCGCCTTGACAATACAGCTCATTCAGAACCACTTTGTGGATGAGTATGACCCTACCATAGAGGATTCCTACAGAAAGCAAGTAGTAATTGATGGGGAAACCTGTCTCTTGGATATTCTTGATACAGCAGGTCAAGAAGAATATAGTGCAATGAGGGACCAATATATGAGAACAGGAGAAGGCTTTCTGTGTGTTTTTGCTATAAACAATACAAAATCTTTTGAAGATATTCACCATTATAGGGAACAAATAAAGAGAGTTAAAGACTCTGAAGATGTCCCAATGGTGCTAGTAGGAAACAAATGTGATTTGCCTTCCAGAACAGTAGATACAAAACAAGCTCAGGATTTAGCAAGAAGTTATGGAATTCCTTTTATTGAAACATCAGCAAAGACAAGACAGGGTGTTGATGATGCCTTCTATACATTAGTTCGAGAAATCAGAAAACAC		
+	</sequence>
+        <sequence taxon="liza">		ATGACGGAATATAAGCTGGTTGTGGTAGGAGCTGGAGGTGTTGGCAAGAGCGCACTTACTATTCAGCTCATCCAGAATCACTTTGTGGACGAATATGACCCCACAATTGAGGACTCCTACAGAAAGCAGGTAGTTATTGACGGAGAGACGTGTCTCTTGGACATCCTGGACACTGCAGGTCAAGAGGAGTACAGCGCCATGAGAGATCAGTACATGAGGACAGGGGAGGGCTTTCTCTGTGTCTTTGCCATCAACAACACCAAGTCCTTCGAGGACATTCACCACTATAGAGAACAGATTAAGCGGGTGAAGGACTCTGAGGACGTCCCCATGGTGTTGGTGGGGAACAAGTGTGACCTCCCGTCCCGGACAGTGGACACCAAGCAGGCTCAGGACTTAGCACGCAGCTACGGCATTCCCTTTATTGAGACCTCAGCCAAAACCAGACAGGGCGTTGATGATGCCTTTTACACGTTAGTGCGAGAAATCCGCAAGCAT		
+	</sequence>
+        <sequence taxon="tribolium">	ATGACTGAATACAAACTAGTAGTAGTTGGAGCAGGTGGTGTCGGCAAATCAGCTTTGACCATACAATTAATCCAAAATCACTTCGTCGACGAATACGACCCTACCATTGAAGACTCCTATCGAAAACAAGTAGTCATCGATGGGGAAACGTGTTTACTGGATATTTTGGATACGGCAGGACAGGAAGAATACAGTGCCATGCGAGACCAGTACATGAGGACAGGGGAAGGTTTCCTTTTGGTTTTCGCCGTTAATTCAGCTAAAAGTTTCGAAGACATTGGAACATACAGGGAACAAATTAAAAGGGTTAAAGATGCCGAAGTCGTACCAATGGTACTCGTAGGAAACAAATGCGACCTCACTTCGTGGGCTGTAGACATGAACCAAGCCAGAGAGGTGGCGCGGCAGTACGGGATCCCGTTCGTGGAGACGTCGGCGAAGACCAGGATGGGTGTGGACGAGGCATTTTACACGTTAGTTAGAGAAATACGTAAGGAC		
+	</sequence>
+    </data> 
+
+    <tree id='tree' spec='beast.util.TreeParser' taxa="@alignment" newick='((human:0.1,(chicken:0.1,liza:0.1):0.1):0.1,(fly:0.1,tribolium:0.1):0.1);' />
+    
+    <input spec='beast.evolution.tree.BranchTree' id='branchTree'>
+    	<initial idref="tree" />
+    </input>
+
+    <run spec="MCMC" id="mcmc" chainLength="50000"> <!--autoOptimize="true"-->
+	
+	 <state id="state" storeEvery="100">
+            <stateNode spec='parameter.RealParameter' id="yn98.kappa" value="1.256" lower="0.0"/>
+            <stateNode spec='parameter.RealParameter' id="yn98.omega" value="0.0001595" lower="0.0"/>
+            <stateNode spec='parameter.RealParameter' id="yn98.frequencies" value="0.25 0.237 0.287 0.226" dimension="4" lower='0.0' upper="1.0"/>
+	    <stateNode idref='branchTree'/>       
+       	</state>
+
+      	<distribution spec='CompoundDistribution' id='posterior'>
+
+		<distribution id="prior" spec="util.CompoundDistribution">
+             		<distribution id="yn98.kappa.prior" spec="beast.math.distributions.Prior" x="@yn98.kappa">
+                		<distr id="OneOnX0.kappa" offset="0.0" spec="beast.math.distributions.OneOnX"/>
+            		</distribution>
+			<!--
+             		<distribution id="yn98.omega.prior" spec="beast.math.distributions.Prior" x="@yn98.omega">
+                		<distr id="OneOnX0.omega" offset="0.0" spec="beast.math.distributions.OneOnX"/>
+            		</distribution>
+			-->
+                	<distribution id="yn98.frequencies.prior" spec="beast.math.distributions.Prior" x="@yn98.frequencies">
+                    		<distr id="Uniform" lower="0.0" upper="1.0" spec="beast.math.distributions.Uniform"/>
+                	</distribution>
+		</distribution>
+		<!--
+		-->
+
+	       	<distribution spec='beast.evolution.likelihood.BranchTreeLikelihood' id="likelihood" data='@alignment' tree='@branchTree'>
+               		<siteModel id="siteModel" spec='SiteModel'>
+    				<!-- The YN98 substitution model (Yang & Nielsen, 1998) -->
+    				<substModel spec='YN98Fast' id='yn98'>
+        				<kappa idref='yn98.kappa'/>
+        				<omega idref='yn98.omega'/>
+        				<nucleoFrequencies id='freqs' spec='Frequencies' frequencies='@yn98.frequencies'/>   
+    				</substModel>
+                	</siteModel>
+            </distribution>
+       	</distribution>
+
+
+        <operator id='frequenciesDelta' spec='DeltaExchangeOperator' delta="0.01" weight="0.1" parameter="@yn98.frequencies"/>	    
+       	<operator id='kappaScaler' spec='ScaleOperator' scaleFactor="0.5" weight="1" parameter="@yn98.kappa"/>
+	<operator id='omegaScaler' spec='ScaleOperator' scaleFactor="0.5" weight="1" parameter="@yn98.omega"/>
+
+	<operator id='CC' spec='CChangeOperator' size="0.1" weight="1" tree="@branchTree"/>
+
+	<!--
+        <operator id='treeScaler' spec='ScaleOperator' scaleFactor="0.5" weight="1" tree="@tree"/>
+        <operator spec='SubtreeSlide' weight="5" gaussian="true" size="1.0" tree="@tree"/>
+        <operator spec='Uniform' weight="10" tree="@tree"/>
+        <operator id='narrow' spec='Exchange' isNarrow='true' weight="1" tree="@tree"/>
+        <operator id='wide' spec='Exchange' isNarrow='false' weight="1" tree="@tree"/>
+        <operator spec='WilsonBalding' weight="1" tree="@tree"/>
+	-->
+
+       	<logger logEvery="100" fileName="YN98Fast_branchTree.log">
+            <log idref="posterior"/>
+            <log idref="likelihood"/>
+            <log idref="yn98.kappa"/>
+            <log idref="yn98.omega"/>
+            <log idref="yn98.frequencies"/>
+            <log spec='beast.evolution.tree.TreeLengthLogger' tree='@branchTree'/>
+        </logger>
+        
+        <logger logEvery="100" fileName="YN98Fast_branchTree.trees">
+            <log idref="branchTree"/>
+        </logger>
+        
+       	<logger id="screenlog" logEvery="100">
+            <log idref="posterior"/>
+            <log arg="@posterior" id="ESS.0" spec="util.ESS"/>
+            <log idref="likelihood"/>
+            <log spec='beast.evolution.tree.TreeLengthLogger' tree='@branchTree'/>
+        </logger>
+
+	</run>
+
+</beast>

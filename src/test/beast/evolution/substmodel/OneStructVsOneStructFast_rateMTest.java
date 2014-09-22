@@ -89,7 +89,7 @@ public class OneStructVsOneStructFast_rateMTest extends TestCase {
         
         //System.setOut(new PrintStream(new FileOutputStream("/home/kuangyu/Desktop/debugging_OneStruct.txt")));
         //on mac
-        System.setOut(new PrintStream(new FileOutputStream("/Users/kwang2/Desktop/debugging_OneStruct.txt")));        
+        //System.setOut(new PrintStream(new FileOutputStream("/Users/kwang2/Desktop/debugging_OneStruct.txt")));        
         site1_likelihood.calculateLogP();
     }
     
@@ -130,7 +130,7 @@ public class OneStructVsOneStructFast_rateMTest extends TestCase {
         
         //System.setOut(new PrintStream(new FileOutputStream("/home/kuangyu/Desktop/debugging_OneStruct.txt")));
         //on mac
-        System.setOut(new PrintStream(new FileOutputStream("/Users/kwang2/Desktop/debugging_OneStructFast.txt")));        
+        //System.setOut(new PrintStream(new FileOutputStream("/Users/kwang2/Desktop/debugging_OneStructFast.txt")));        
         site1_likelihood.calculateLogP();
     }
 }
